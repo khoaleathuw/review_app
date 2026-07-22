@@ -3,6 +3,7 @@ package com.example.review.entity;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Entity
 @Table(name = "reviews")
@@ -22,6 +23,7 @@ public class Review {
 
     private String deviceName;
 
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -30,7 +32,9 @@ public class Review {
 
     @PrePersist
     public void prePersist() {
-        createdAt = LocalDateTime.now();
+        createdAt = LocalDateTime.now(
+                ZoneId.of("Asia/Ho_Chi_Minh")
+        );
     }
 
     public Long getId() {
