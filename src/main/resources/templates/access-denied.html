@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Không có quyền</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            background: #f4f6f8;
+        }
+
+        .box {
+            width: min(450px, calc(100% - 32px));
+            padding: 35px;
+            text-align: center;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.10);
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        p {
+            color: #667085;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 12px 20px;
+            border-radius: 10px;
+            color: white;
+            background: #111827;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+    <h1>Không có quyền truy cập</h1>
+
+    <p>
+        Tài khoản của bạn không được phép thực hiện chức năng này.
+    </p>
+
+    <a href="/admin/dashboard">
+        Quay lại Dashboard
+    </a>
+</div>
+
+</body>
+</html>

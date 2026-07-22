@@ -1,0 +1,1841 @@
+    <!DOCTYPE html>
+<html lang="vi"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+    >
+
+    <title
+            th:text="${branch != null
+                ? 'Tổng kết tháng - ' + branch.name
+                : 'Tổng kết tháng'}"
+    >
+        Tổng kết tháng
+    </title>
+
+    <style>
+        :root {
+            --primary: #f4ad24;
+            --primary-dark: #d88c0d;
+            --primary-soft: #fff2d3;
+
+            --success: #2f9e68;
+            --success-soft: #e8f8f0;
+
+            --danger: #dc3545;
+            --danger-soft: #fff0f1;
+
+            --info: #3178c6;
+            --info-soft: #eaf3ff;
+
+            --white: #ffffff;
+            --background: #f8f7f3;
+            --surface: rgba(255, 255, 255, 0.94);
+
+            --text: #252525;
+            --muted: #777777;
+            --border: #ebe6dc;
+
+            --shadow: 0 18px 50px rgba(98, 70, 19, 0.10);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            color: var(--text);
+            background:
+                    radial-gradient(
+                            circle at top left,
+                            rgba(255, 214, 132, 0.40),
+                            transparent 30%
+                    ),
+                    radial-gradient(
+                            circle at top right,
+                            rgba(255, 239, 205, 0.65),
+                            transparent 30%
+                    ),
+                    linear-gradient(
+                            145deg,
+                            #fffdf8,
+                            var(--background)
+                    );
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit;
+        }
+
+        a {
+            color: inherit;
+        }
+
+        .page {
+            width: min(1380px, calc(100% - 36px));
+            margin: 0 auto;
+            padding: 26px 0 60px;
+        }
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+
+            margin-bottom: 22px;
+            padding: 18px 22px;
+
+            border: 1px solid rgba(255, 255, 255, 0.92);
+            border-radius: 22px;
+
+            background: rgba(255, 255, 255, 0.80);
+            backdrop-filter: blur(18px);
+
+            box-shadow: var(--shadow);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            width: 48px;
+            height: 48px;
+
+            border-radius: 16px;
+
+            color: #3b2a08;
+            background: linear-gradient(
+                    145deg,
+                    #ffd875,
+                    var(--primary)
+            );
+
+            font-size: 23px;
+            box-shadow: 0 10px 25px rgba(219, 143, 14, 0.24);
+        }
+
+        .brand-copy h2 {
+            font-size: 18px;
+            line-height: 1.2;
+        }
+
+        .brand-copy p {
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .topbar-link,
+        .logout-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+
+            min-height: 42px;
+            padding: 0 16px;
+
+            border: 0;
+            border-radius: 13px;
+
+            color: #353535;
+            background: #f2efe9;
+
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+
+            transition: 0.2s ease;
+        }
+
+        .topbar-link:hover,
+        .logout-button:hover {
+            transform: translateY(-2px);
+            background: #e9e5dd;
+        }
+
+        /* =========================
+           HERO
+        ========================= */
+
+        .hero {
+            position: relative;
+            overflow: hidden;
+
+            margin-bottom: 22px;
+            padding: 30px;
+
+            border-radius: 28px;
+
+            color: #2f220a;
+            background:
+                    linear-gradient(
+                            135deg,
+                            rgba(255, 225, 157, 0.95),
+                            rgba(244, 173, 36, 0.92)
+                    );
+
+            box-shadow: 0 20px 55px rgba(166, 103, 10, 0.20);
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            top: -70px;
+            right: -70px;
+
+            width: 220px;
+            height: 220px;
+
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.22);
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            right: 150px;
+            bottom: -95px;
+
+            width: 180px;
+            height: 180px;
+
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.14);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 20px;
+        }
+
+        .eyebrow {
+            margin-bottom: 10px;
+
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .hero h1 {
+            max-width: 760px;
+            font-size: clamp(28px, 4vw, 46px);
+            line-height: 1.08;
+        }
+
+        .hero-description {
+            max-width: 720px;
+            margin-top: 12px;
+
+            color: rgba(47, 34, 10, 0.76);
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .hero-period {
+            min-width: 210px;
+            padding: 16px 18px;
+
+            border: 1px solid rgba(255, 255, 255, 0.42);
+            border-radius: 18px;
+
+            background: rgba(255, 255, 255, 0.26);
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-period span {
+            display: block;
+            margin-bottom: 5px;
+
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .hero-period strong {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        /* =========================
+           ALERT
+        ========================= */
+
+        .alert {
+            margin-bottom: 18px;
+            padding: 14px 17px;
+
+            border-radius: 15px;
+
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1.5;
+        }
+
+        .alert-success {
+            color: #176541;
+            background: var(--success-soft);
+            border: 1px solid #bcebd5;
+        }
+
+        .alert-error {
+            color: #a82632;
+            background: var(--danger-soft);
+            border: 1px solid #ffc9ce;
+        }
+
+        /* =========================
+           FILTER
+        ========================= */
+
+        .filter-card {
+            margin-bottom: 22px;
+            padding: 22px;
+
+            border: 1px solid rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        .section-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+
+            margin-bottom: 18px;
+        }
+
+        .section-heading h2 {
+            font-size: 20px;
+        }
+
+        .section-heading p {
+            margin-top: 5px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .filter-form {
+            display: grid;
+            grid-template-columns:
+                    minmax(170px, 0.8fr)
+                    minmax(170px, 1fr)
+                    minmax(170px, 1fr)
+                    auto
+                    auto;
+            gap: 13px;
+            align-items: end;
+        }
+
+        .field label {
+            display: block;
+            margin-bottom: 8px;
+
+            color: #4f4f4f;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .field input,
+        .field select {
+            width: 100%;
+            min-height: 46px;
+            padding: 0 13px;
+
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            outline: none;
+
+            color: var(--text);
+            background: var(--white);
+
+            transition: 0.2s ease;
+        }
+
+        .field input:focus,
+        .field select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(244, 173, 36, 0.14);
+        }
+
+        .filter-button,
+        .reset-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+
+            min-height: 46px;
+            padding: 0 18px;
+
+            border-radius: 13px;
+
+            font-size: 13px;
+            font-weight: 800;
+            text-decoration: none;
+            white-space: nowrap;
+            cursor: pointer;
+
+            transition: 0.2s ease;
+        }
+
+        .filter-button {
+            border: 0;
+            color: #2f220a;
+            background: var(--primary);
+        }
+
+        .filter-button:hover {
+            transform: translateY(-2px);
+            background: #e9a11d;
+        }
+
+        .reset-button {
+            border: 1px solid var(--border);
+            color: #505050;
+            background: #f4f2ed;
+        }
+
+        .reset-button:hover {
+            transform: translateY(-2px);
+            background: #eae7df;
+        }
+
+        /* =========================
+           STATISTICS
+        ========================= */
+
+        .statistics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+
+            margin-bottom: 22px;
+        }
+
+        .stat-card {
+            position: relative;
+            overflow: hidden;
+
+            min-height: 155px;
+            padding: 21px;
+
+            border: 1px solid rgba(255, 255, 255, 0.95);
+            border-radius: 23px;
+
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        .stat-card::after {
+            content: "";
+            position: absolute;
+            top: -30px;
+            right: -30px;
+
+            width: 95px;
+            height: 95px;
+
+            border-radius: 50%;
+            background: rgba(244, 173, 36, 0.08);
+        }
+
+        .stat-top {
+            position: relative;
+            z-index: 2;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .stat-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            width: 42px;
+            height: 42px;
+
+            border-radius: 14px;
+
+            font-size: 20px;
+            background: var(--primary-soft);
+        }
+
+        .stat-value {
+            position: relative;
+            z-index: 2;
+
+            margin-top: 18px;
+
+            font-size: 34px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .stat-note {
+            position: relative;
+            z-index: 2;
+
+            margin-top: 10px;
+
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        /* =========================
+           CONTENT GRID
+        ========================= */
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: minmax(330px, 0.9fr) minmax(0, 1.7fr);
+            gap: 20px;
+            align-items: start;
+        }
+
+        .card {
+            padding: 22px;
+
+            border: 1px solid rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+
+            background: var(--surface);
+            box-shadow: var(--shadow);
+        }
+
+        /* =========================
+           RATING DISTRIBUTION
+        ========================= */
+
+        .rating-overview {
+            display: flex;
+            align-items: center;
+            gap: 17px;
+
+            margin-bottom: 24px;
+            padding: 18px;
+
+            border-radius: 18px;
+            background: var(--primary-soft);
+        }
+
+        .average-circle {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            width: 92px;
+            height: 92px;
+            flex: 0 0 92px;
+
+            border-radius: 50%;
+
+            color: #37260a;
+            background: var(--white);
+
+            box-shadow: 0 10px 24px rgba(145, 92, 8, 0.12);
+        }
+
+        .average-circle strong {
+            font-size: 30px;
+            line-height: 1;
+        }
+
+        .average-circle span {
+            margin-top: 5px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .rating-overview-copy h3 {
+            font-size: 17px;
+        }
+
+        .rating-overview-copy p {
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .stars {
+            margin-top: 8px;
+            color: #f0a313;
+            letter-spacing: 2px;
+        }
+
+        .rating-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .rating-row {
+            display: grid;
+            grid-template-columns: 52px 1fr 46px;
+            align-items: center;
+            gap: 11px;
+        }
+
+        .rating-name {
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .rating-track {
+            height: 11px;
+            overflow: hidden;
+
+            border-radius: 999px;
+            background: #eeeae3;
+        }
+
+        .rating-fill {
+            height: 100%;
+            min-width: 0;
+
+            border-radius: inherit;
+
+            background: linear-gradient(
+                    90deg,
+                    #ffd36c,
+                    var(--primary)
+            );
+
+            transition: width 0.4s ease;
+        }
+
+        .rating-count {
+            text-align: right;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* =========================
+           REVIEW LIST
+        ========================= */
+
+        .reviews-card {
+            min-width: 0;
+        }
+
+        .review-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .review-item {
+            padding: 18px;
+
+            border: 1px solid var(--border);
+            border-radius: 19px;
+
+            background: var(--white);
+
+            transition: 0.2s ease;
+        }
+
+        .review-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(62, 45, 16, 0.08);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 14px;
+
+            margin-bottom: 13px;
+        }
+
+        .review-user {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            min-width: 0;
+        }
+
+        .review-avatar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            width: 43px;
+            height: 43px;
+            flex: 0 0 43px;
+
+            border-radius: 14px;
+
+            color: #3d2a08;
+            background: var(--primary-soft);
+
+            font-size: 17px;
+            font-weight: 800;
+        }
+
+        .review-user-copy {
+            min-width: 0;
+        }
+
+        .review-user-copy h3 {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+
+            font-size: 15px;
+        }
+
+        .review-date {
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .review-rating {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+
+            flex: 0 0 auto;
+
+            padding: 7px 10px;
+
+            border-radius: 999px;
+
+            color: #71500e;
+            background: var(--primary-soft);
+
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .review-reason {
+            display: inline-block;
+
+            margin-bottom: 11px;
+            padding: 7px 10px;
+
+            border-radius: 999px;
+
+            color: #315f8f;
+            background: var(--info-soft);
+
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .review-comment {
+            color: #444444;
+            font-size: 14px;
+            line-height: 1.7;
+            white-space: pre-line;
+            overflow-wrap: anywhere;
+        }
+
+        .review-empty-text {
+            color: var(--muted);
+            font-style: italic;
+        }
+
+        .review-actions {
+            display: flex;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 9px;
+
+            margin-top: 16px;
+            padding-top: 14px;
+
+            border-top: 1px solid #efebe4;
+        }
+
+        .review-action-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+
+            min-height: 38px;
+            padding: 0 13px;
+
+            border: 0;
+            border-radius: 11px;
+
+            font-size: 12px;
+            font-weight: 800;
+            text-decoration: none;
+            cursor: pointer;
+
+            transition: 0.2s ease;
+        }
+
+        .review-edit-button {
+            color: #72500d;
+            background: var(--primary-soft);
+        }
+
+        .review-edit-button:hover {
+            transform: translateY(-2px);
+            background: #ffe6ad;
+        }
+
+        .review-delete-button {
+            color: #b12635;
+            background: var(--danger-soft);
+        }
+
+        .review-delete-button:hover {
+            transform: translateY(-2px);
+            background: #ffdadd;
+        }
+
+        .delete-form {
+            display: inline-flex;
+        }
+
+        /* =========================
+           EMPTY STATE
+        ========================= */
+
+        .empty-state {
+            padding: 55px 20px;
+            text-align: center;
+        }
+
+        .empty-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            width: 78px;
+            height: 78px;
+
+            margin: 0 auto 17px;
+
+            border-radius: 25px;
+
+            background: var(--primary-soft);
+            font-size: 34px;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+        }
+
+        .empty-state p {
+            max-width: 430px;
+            margin: 9px auto 0;
+
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================= */
+
+        @media (max-width: 1100px) {
+            .statistics-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-form {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .filter-button,
+            .reset-button {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 760px) {
+            .page {
+                width: min(100% - 24px, 1380px);
+                padding-top: 12px;
+            }
+
+            .topbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .topbar-actions {
+                width: 100%;
+            }
+
+            .topbar-link,
+            .logout-button {
+                flex: 1;
+            }
+
+            .hero {
+                padding: 24px 20px;
+            }
+
+            .hero-content {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .hero-period {
+                width: 100%;
+            }
+
+            .statistics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-form {
+                grid-template-columns: 1fr;
+            }
+
+            .review-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .review-rating {
+                margin-left: 54px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .topbar-actions {
+                flex-direction: column;
+            }
+
+            .topbar-link,
+            .logout-button {
+                width: 100%;
+            }
+
+            .filter-card,
+            .card {
+                padding: 17px;
+                border-radius: 20px;
+            }
+
+            .stat-card {
+                min-height: 135px;
+            }
+
+            .rating-overview {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .review-rating {
+                margin-left: 0;
+            }
+
+            .review-actions {
+                flex-direction: column;
+            }
+
+            .review-action-button,
+            .delete-form,
+            .delete-form button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="page">
+
+    <!-- =========================
+         TOP BAR
+    ========================== -->
+
+    <header class="topbar">
+
+        <div class="brand">
+
+            <div class="brand-logo">
+                ⭐
+            </div>
+
+            <div class="brand-copy">
+                <h2>Review Management</h2>
+                <p>Quản lý và tổng kết đánh giá khách hàng</p>
+            </div>
+
+        </div>
+
+        <div class="topbar-actions">
+
+            <a
+                    class="topbar-link"
+                    th:href="@{/admin/dashboard}"
+            >
+                🏠 Dashboard
+            </a>
+
+            <form
+                    th:action="@{/logout}"
+                    method="post"
+            >
+                <button
+                        class="logout-button"
+                        type="submit"
+                >
+                    Đăng xuất
+                </button>
+            </form>
+
+        </div>
+
+    </header>
+
+    <!-- =========================
+         HERO
+    ========================== -->
+
+    <section class="hero">
+
+        <div class="hero-content">
+
+            <div>
+
+                <p class="eyebrow">
+                    Monthly Review Report
+                </p>
+
+                <h1>
+                    Tổng kết đánh giá
+                    <span
+                            th:text="${branch != null
+                                ? branch.name
+                                : 'chi nhánh'}"
+                    >
+                        Chi nhánh
+                    </span>
+                </h1>
+
+                <p class="hero-description">
+
+                    Theo dõi số lượng đánh giá, điểm trung bình,
+                    mức độ hài lòng và phản hồi của khách hàng
+                    trong thời gian đã chọn.
+
+                </p>
+
+            </div>
+
+            <div class="hero-period">
+
+                <span>Khoảng thời gian</span>
+
+                <strong
+                        th:if="${fromDate != null and toDate != null}"
+                        th:text="${#temporals.format(fromDate, 'dd/MM/yyyy')
+                            + ' - '
+                            + #temporals.format(toDate, 'dd/MM/yyyy')}"
+                >
+                    01/07/2026 - 31/07/2026
+                </strong>
+
+                <strong
+                        th:unless="${fromDate != null and toDate != null}"
+                >
+                    Tất cả thời gian
+                </strong>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- =========================
+         FLASH MESSAGE
+    ========================== -->
+
+    <div
+            class="alert alert-success"
+            th:if="${success != null}"
+            th:text="${success}"
+    >
+        Thao tác thành công
+    </div>
+
+    <div
+            class="alert alert-error"
+            th:if="${error != null}"
+            th:text="${error}"
+    >
+        Có lỗi xảy ra
+    </div>
+
+    <!-- =========================
+         FILTER
+    ========================== -->
+
+    <section class="filter-card">
+
+        <div class="section-heading">
+
+            <div>
+                <h2>Bộ lọc báo cáo</h2>
+                <p>
+                    Chọn nhanh theo tháng hoặc nhập khoảng ngày cụ thể.
+                </p>
+            </div>
+
+        </div>
+
+        <form
+                class="filter-form"
+                method="get"
+                th:action="@{/admin/branches/{id}/report(
+                    id=${branch.id}
+                )}"
+        >
+
+            <div class="field">
+
+                <label for="month">
+                    Chọn tháng
+                </label>
+
+                <input
+                        id="month"
+                        name="month"
+                        type="month"
+                        th:value="${selectedMonth}"
+                >
+
+            </div>
+
+            <div class="field">
+
+                <label for="from">
+                    Từ ngày
+                </label>
+
+                <input
+                        id="from"
+                        name="from"
+                        type="date"
+                        th:value="${fromDate}"
+                >
+
+            </div>
+
+            <div class="field">
+
+                <label for="to">
+                    Đến ngày
+                </label>
+
+                <input
+                        id="to"
+                        name="to"
+                        type="date"
+                        th:value="${toDate}"
+                >
+
+            </div>
+
+            <button
+                    class="filter-button"
+                    type="submit"
+            >
+                🔍 Xem báo cáo
+            </button>
+
+            <a
+                    class="reset-button"
+                    th:href="@{/admin/branches/{id}/report(
+                        id=${branch.id}
+                    )}"
+            >
+                Làm mới
+            </a>
+
+        </form>
+
+    </section>
+
+    <!-- =========================
+         STATISTICS
+    ========================== -->
+
+    <section class="statistics-grid">
+
+        <article class="stat-card">
+
+            <div class="stat-top">
+
+                <span class="stat-label">
+                    Tổng đánh giá
+                </span>
+
+                <span class="stat-icon">
+                    📝
+                </span>
+
+            </div>
+
+            <div
+                    class="stat-value"
+                    th:text="${totalReviews != null
+                        ? totalReviews
+                        : 0}"
+            >
+                0
+            </div>
+
+            <p class="stat-note">
+                Tổng số lượt đánh giá trong thời gian được chọn.
+            </p>
+
+        </article>
+
+        <article class="stat-card">
+
+            <div class="stat-top">
+
+                <span class="stat-label">
+                    Điểm trung bình
+                </span>
+
+                <span class="stat-icon">
+                    ⭐
+                </span>
+
+            </div>
+
+            <div class="stat-value">
+
+                <span
+                        th:text="${averageRating != null
+                            ? #numbers.formatDecimal(
+                                averageRating,
+                                1,
+                                1
+                            )
+                            : '0.0'}"
+                >
+                    0.0
+                </span>
+
+                <small style="font-size:15px;color:#888">
+                    / 5
+                </small>
+
+            </div>
+
+            <p class="stat-note">
+                Điểm trung bình của tất cả đánh giá.
+            </p>
+
+        </article>
+
+        <article class="stat-card">
+
+            <div class="stat-top">
+
+                <span class="stat-label">
+                    Tỷ lệ hài lòng
+                </span>
+
+                <span class="stat-icon">
+                    😊
+                </span>
+
+            </div>
+
+            <div class="stat-value">
+
+                <span
+                        th:text="${satisfactionRate != null
+                            ? #numbers.formatDecimal(
+                                satisfactionRate,
+                                1,
+                                1
+                            )
+                            : '0.0'}"
+                >
+                    0.0
+                </span>
+
+                <small style="font-size:15px;color:#888">
+                    %
+                </small>
+
+            </div>
+
+            <p class="stat-note">
+                Tỷ lệ đánh giá đạt từ 4 đến 5 sao.
+            </p>
+
+        </article>
+
+        <article class="stat-card">
+
+            <div class="stat-top">
+
+                <span class="stat-label">
+                    Đánh giá chưa tốt
+                </span>
+
+                <span class="stat-icon">
+                    📉
+                </span>
+
+            </div>
+
+            <div
+                    class="stat-value"
+                    th:text="${lowRatingCount != null
+                        ? lowRatingCount
+                        : 0}"
+            >
+                0
+            </div>
+
+            <p class="stat-note">
+                Số đánh giá từ 1 đến 3 sao cần quan tâm.
+            </p>
+
+        </article>
+
+    </section>
+
+    <!-- =========================
+         MAIN CONTENT
+    ========================== -->
+
+    <section class="content-grid">
+
+        <!-- RATING DISTRIBUTION -->
+
+        <article class="card">
+
+            <div class="section-heading">
+
+                <div>
+                    <h2>Phân bố số sao</h2>
+                    <p>
+                        Số lượng đánh giá theo từng mức sao.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="rating-overview">
+
+                <div class="average-circle">
+
+                    <strong
+                            th:text="${averageRating != null
+                                ? #numbers.formatDecimal(
+                                    averageRating,
+                                    1,
+                                    1
+                                )
+                                : '0.0'}"
+                    >
+                        0.0
+                    </strong>
+
+                    <span>trên 5 sao</span>
+
+                </div>
+
+                <div class="rating-overview-copy">
+
+                    <h3>Mức độ hài lòng chung</h3>
+
+                    <div class="stars">
+                        ★ ★ ★ ★ ★
+                    </div>
+
+                    <p
+                            th:text="${totalReviews != null
+                                ? 'Dựa trên '
+                                    + totalReviews
+                                    + ' lượt đánh giá.'
+                                : 'Chưa có dữ liệu đánh giá.'}"
+                    >
+                        Chưa có dữ liệu đánh giá.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="rating-bars">
+
+                <!-- 5 SAO -->
+
+                <div class="rating-row">
+
+                    <span class="rating-name">
+                        5 sao
+                    </span>
+
+                    <div class="rating-track">
+
+                        <div
+                                class="rating-fill"
+                                th:style="'width: '
+                                    + ${fiveStarPercentage != null
+                                        ? fiveStarPercentage
+                                        : 0}
+                                    + '%'"
+                        ></div>
+
+                    </div>
+
+                    <span
+                            class="rating-count"
+                            th:text="${fiveStarCount != null
+                                ? fiveStarCount
+                                : 0}"
+                    >
+                        0
+                    </span>
+
+                </div>
+
+                <!-- 4 SAO -->
+
+                <div class="rating-row">
+
+                    <span class="rating-name">
+                        4 sao
+                    </span>
+
+                    <div class="rating-track">
+
+                        <div
+                                class="rating-fill"
+                                th:style="'width: '
+                                    + ${fourStarPercentage != null
+                                        ? fourStarPercentage
+                                        : 0}
+                                    + '%'"
+                        ></div>
+
+                    </div>
+
+                    <span
+                            class="rating-count"
+                            th:text="${fourStarCount != null
+                                ? fourStarCount
+                                : 0}"
+                    >
+                        0
+                    </span>
+
+                </div>
+
+                <!-- 3 SAO -->
+
+                <div class="rating-row">
+
+                    <span class="rating-name">
+                        3 sao
+                    </span>
+
+                    <div class="rating-track">
+
+                        <div
+                                class="rating-fill"
+                                th:style="'width: '
+                                    + ${threeStarPercentage != null
+                                        ? threeStarPercentage
+                                        : 0}
+                                    + '%'"
+                        ></div>
+
+                    </div>
+
+                    <span
+                            class="rating-count"
+                            th:text="${threeStarCount != null
+                                ? threeStarCount
+                                : 0}"
+                    >
+                        0
+                    </span>
+
+                </div>
+
+                <!-- 2 SAO -->
+
+                <div class="rating-row">
+
+                    <span class="rating-name">
+                        2 sao
+                    </span>
+
+                    <div class="rating-track">
+
+                        <div
+                                class="rating-fill"
+                                th:style="'width: '
+                                    + ${twoStarPercentage != null
+                                        ? twoStarPercentage
+                                        : 0}
+                                    + '%'"
+                        ></div>
+
+                    </div>
+
+                    <span
+                            class="rating-count"
+                            th:text="${twoStarCount != null
+                                ? twoStarCount
+                                : 0}"
+                    >
+                        0
+                    </span>
+
+                </div>
+
+                <!-- 1 SAO -->
+
+                <div class="rating-row">
+
+                    <span class="rating-name">
+                        1 sao
+                    </span>
+
+                    <div class="rating-track">
+
+                        <div
+                                class="rating-fill"
+                                th:style="'width: '
+                                    + ${oneStarPercentage != null
+                                        ? oneStarPercentage
+                                        : 0}
+                                    + '%'"
+                        ></div>
+
+                    </div>
+
+                    <span
+                            class="rating-count"
+                            th:text="${oneStarCount != null
+                                ? oneStarCount
+                                : 0}"
+                    >
+                        0
+                    </span>
+
+                </div>
+
+            </div>
+
+        </article>
+
+        <!-- REVIEW LIST -->
+
+        <article class="card reviews-card">
+
+            <div class="section-heading">
+
+                <div>
+                    <h2>Danh sách đánh giá</h2>
+                    <p>
+                        Các phản hồi của khách hàng trong thời gian đã chọn.
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- CÓ REVIEW -->
+
+            <div
+                    class="review-list"
+                    th:if="${reviews != null and !reviews.isEmpty()}"
+            >
+
+                <article
+                        class="review-item"
+                        th:each="review : ${reviews}"
+                >
+
+                    <div class="review-header">
+
+                        <div class="review-user">
+
+                            <div
+                                    class="review-avatar"
+                                    th:text="${review.customerName != null
+                                        and !review.customerName.isBlank()
+                                        ? #strings.substring(
+                                            review.customerName,
+                                            0,
+                                            1
+                                        ).toUpperCase()
+                                        : 'K'}"
+                            >
+                                K
+                            </div>
+
+                            <div class="review-user-copy">
+
+                                <h3
+                                        th:text="${review.customerName != null
+                                            and !review.customerName.isBlank()
+                                            ? review.customerName
+                                            : 'Khách hàng ẩn danh'}"
+                                >
+                                    Khách hàng
+                                </h3>
+
+                                <p
+                                        class="review-date"
+                                        th:text="${review.createdAt != null
+                                            ? #temporals.format(
+                                                review.createdAt,
+                                                'dd/MM/yyyy HH:mm'
+                                            )
+                                            : 'Không rõ thời gian'}"
+                                >
+                                    22/07/2026 23:00
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <div class="review-rating">
+
+                            <span>⭐</span>
+
+                            <span
+                                    th:text="${review.rating != null
+                                        ? review.rating
+                                        : 0}"
+                            >
+                                5
+                            </span>
+
+                            <span>/ 5</span>
+
+                        </div>
+
+                    </div>
+
+                    <div
+                            class="review-reason"
+                            th:if="${review.reason != null
+                                and !review.reason.isBlank()}"
+                            th:text="${review.reason}"
+                    >
+                        Phục vụ nhanh chóng
+                    </div>
+
+                    <p
+                            class="review-comment"
+                            th:if="${review.comment != null
+                                and !review.comment.isBlank()}"
+                            th:text="${review.comment}"
+                    >
+                        Nội dung đánh giá
+                    </p>
+
+                    <p
+                            class="review-comment review-empty-text"
+                            th:unless="${review.comment != null
+                                and !review.comment.isBlank()}"
+                    >
+                        Khách hàng không để lại nội dung góp ý.
+                    </p>
+
+                    <!--
+                        Chỉ Manager và Leader nhìn thấy nút.
+                        Employee không thấy nút sửa/xóa.
+                    -->
+
+                    <div
+                            class="review-actions"
+                            sec:authorize="hasAnyRole('MANAGER','LEADER')"
+                    >
+
+                        <a
+                                class="review-action-button review-edit-button"
+                                th:href="@{/admin/reviews/{id}/edit(
+                                    id=${review.id}
+                                )}"
+                        >
+                            ✏️ Sửa
+                        </a>
+
+                        <form
+                                class="delete-form"
+                                method="post"
+                                th:action="@{/admin/reviews/{id}/delete(
+                                    id=${review.id}
+                                )}"
+                                onsubmit="return confirmDeleteReview();"
+                        >
+
+                            <button
+                                    class="review-action-button review-delete-button"
+                                    type="submit"
+                            >
+                                🗑️ Xóa
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </article>
+
+            </div>
+
+            <!-- KHÔNG CÓ REVIEW -->
+
+            <div
+                    class="empty-state"
+                    th:if="${reviews == null or reviews.isEmpty()}"
+            >
+
+                <div class="empty-icon">
+                    📭
+                </div>
+
+                <h3>Chưa có đánh giá</h3>
+
+                <p>
+                    Không tìm thấy đánh giá nào trong khoảng thời gian
+                    đang được chọn. Hãy thử chọn tháng hoặc khoảng ngày khác.
+                </p>
+
+            </div>
+
+        </article>
+
+    </section>
+
+</div>
+
+<script>
+    function confirmDeleteReview() {
+        return window.confirm(
+            "Bạn có chắc chắn muốn xóa đánh giá này không?"
+        );
+    }
+
+    const monthInput = document.getElementById("month");
+    const fromInput = document.getElementById("from");
+    const toInput = document.getElementById("to");
+
+    if (monthInput) {
+        monthInput.addEventListener("change", function () {
+
+            if (!this.value) {
+                return;
+            }
+
+            const parts = this.value.split("-");
+            const year = Number(parts[0]);
+            const month = Number(parts[1]);
+
+            const firstDay =
+                year
+                + "-"
+                + String(month).padStart(2, "0")
+                + "-01";
+
+            const lastDate =
+                new Date(year, month, 0)
+                    .getDate();
+
+            const lastDay =
+                year
+                + "-"
+                + String(month).padStart(2, "0")
+                + "-"
+                + String(lastDate).padStart(2, "0");
+
+            fromInput.value = firstDay;
+            toInput.value = lastDay;
+        });
+    }
+
+    if (fromInput && toInput) {
+        fromInput.addEventListener("change", function () {
+            toInput.min = this.value;
+        });
+
+        toInput.addEventListener("change", function () {
+            fromInput.max = this.value;
+        });
+    }
+</script>
+
+</body>
+</html>

@@ -222,6 +222,56 @@
             transform: translateX(-2px);
         }
 
+        .top-bar-left {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .monthly-report-button {
+            min-height: 42px;
+            border: 1px solid #e9ca8c;
+            cursor: pointer;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+
+            padding: 10px 16px;
+
+            border-radius: 999px;
+
+            background: #efad24;
+            color: #2c2009;
+
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 700;
+
+            box-shadow:
+                0 9px 22px rgba(239, 173, 36, 0.22);
+
+            transition:
+                transform 0.18s ease,
+                background 0.18s ease,
+                box-shadow 0.18s ease;
+        }
+
+        .monthly-report-button:hover {
+            background: #e5a119;
+
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 13px 28px rgba(239, 173, 36, 0.28);
+        }
+
+        .monthly-report-button:active {
+            transform: scale(0.98);
+        }
+
         .mode-badge {
             min-height: 38px;
 
@@ -439,6 +489,248 @@
             transform: translateY(-2px);
         }
 
+
+        .report-modal {
+            position: fixed;
+            z-index: 90;
+            inset: 0;
+
+            display: none;
+            align-items: center;
+            justify-content: center;
+
+            padding: 20px;
+
+            background: rgba(28, 23, 14, 0.44);
+
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .report-modal.show {
+            display: flex;
+        }
+
+        .report-dialog {
+            width: min(560px, 100%);
+
+            padding: 28px;
+
+            border: 1px solid rgba(255, 255, 255, 0.92);
+            border-radius: 28px;
+
+            background: rgba(255, 255, 255, 0.97);
+
+            box-shadow:
+                0 30px 90px rgba(74, 48, 8, 0.25);
+
+            animation: modalIn 0.22s ease;
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: translateY(14px) scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .report-dialog-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+
+            margin-bottom: 22px;
+        }
+
+        .report-dialog-header h2 {
+            margin-bottom: 7px;
+
+            color: #202020;
+
+            font-size: 25px;
+            line-height: 1.2;
+        }
+
+        .report-dialog-header p {
+            color: #777777;
+
+            font-size: 14px;
+            line-height: 1.55;
+        }
+
+        .modal-close-button {
+            width: 40px;
+            height: 40px;
+            flex: 0 0 40px;
+
+            border: 1px solid #eee2cc;
+            border-radius: 50%;
+
+            background: #fffaf0;
+            color: #77520f;
+
+            font-size: 21px;
+            line-height: 1;
+
+            cursor: pointer;
+
+            transition:
+                transform 0.18s ease,
+                background 0.18s ease;
+        }
+
+        .modal-close-button:hover {
+            background: #fff0ce;
+            transform: rotate(5deg);
+        }
+
+        .report-mode-tabs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+
+            margin-bottom: 22px;
+            padding: 5px;
+
+            border-radius: 16px;
+
+            background: #f7f2e8;
+        }
+
+        .report-mode-button {
+            min-height: 43px;
+
+            border: 0;
+            border-radius: 12px;
+
+            background: transparent;
+            color: #806124;
+
+            font-size: 13px;
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition:
+                background 0.18s ease,
+                color 0.18s ease,
+                box-shadow 0.18s ease;
+        }
+
+        .report-mode-button.active {
+            background: #ffffff;
+            color: #2c2009;
+
+            box-shadow:
+                0 6px 18px rgba(126, 83, 13, 0.10);
+        }
+
+        .report-filter-section {
+            display: none;
+        }
+
+        .report-filter-section.active {
+            display: block;
+        }
+
+        .report-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .report-input-group {
+            margin-bottom: 18px;
+        }
+
+        .report-input-group label {
+            display: block;
+
+            margin-bottom: 8px;
+
+            color: #555555;
+
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .report-input {
+            width: 100%;
+            min-height: 52px;
+
+            padding: 0 15px;
+
+            border: 2px solid #eee4d2;
+            border-radius: 15px;
+
+            background: #ffffff;
+            color: #292929;
+
+            font-size: 15px;
+            outline: none;
+        }
+
+        .report-input:focus {
+            border-color: #e0a727;
+
+            box-shadow:
+                0 0 0 4px rgba(224, 167, 39, 0.11);
+        }
+
+        .report-dialog-actions {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+
+            margin-top: 8px;
+        }
+
+        .view-report-button,
+        .modal-cancel-button {
+            min-height: 52px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 0 20px;
+
+            border-radius: 15px;
+
+            font-size: 15px;
+            font-weight: 700;
+
+            cursor: pointer;
+        }
+
+        .view-report-button {
+            border: 0;
+
+            background: #202020;
+            color: #ffffff;
+        }
+
+        .view-report-button:hover {
+            background: #000000;
+        }
+
+        .modal-cancel-button {
+            border: 1px solid #eee2cc;
+
+            background: #ffffff;
+            color: #8b641e;
+        }
+
+        .modal-cancel-button:hover {
+            background: #fff8e8;
+        }
+
         .loading-overlay {
             position: fixed;
             z-index: 100;
@@ -494,6 +786,25 @@
                 padding: 16px;
             }
 
+            .top-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .top-bar-left {
+                width: 100%;
+            }
+
+            .back-button,
+            .monthly-report-button {
+                flex: 1;
+            }
+
+            .mode-badge {
+                align-self: flex-start;
+                max-width: 100%;
+            }
+
             .form-card {
                 padding: 28px 20px;
 
@@ -515,6 +826,18 @@
             }
 
             .form-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .report-mode-tabs {
+                grid-template-columns: 1fr;
+            }
+
+            .report-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .report-dialog-actions {
                 grid-template-columns: 1fr;
             }
 
@@ -555,12 +878,25 @@
 
         <div class="top-bar">
 
-            <a
-                class="back-button"
-                th:href="@{/admin/branches}"
-            >
-                ← Quay lại
-            </a>
+            <div class="top-bar-left">
+
+                <a
+                    class="back-button"
+                    th:href="@{/admin/branches}"
+                >
+                    ← Quay lại
+                </a>
+
+                <button
+                    class="monthly-report-button"
+                    id="openReportModal"
+                    type="button"
+                    th:if="${editMode and branch != null and branch.id != null}"
+                >
+                    📊 Coi đánh giá
+                </button>
+
+            </div>
 
             <div class="mode-badge">
                 <span class="mode-dot"></span>
@@ -760,6 +1096,189 @@
 
 </main>
 
+
+<div
+    class="report-modal"
+    id="reportModal"
+    th:if="${editMode and branch != null and branch.id != null}"
+>
+    <section
+        class="report-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="reportDialogTitle"
+    >
+
+        <div class="report-dialog-header">
+
+            <div>
+                <h2 id="reportDialogTitle">
+                    Coi đánh giá
+                </h2>
+
+                <p>
+                    Chọn xem theo tháng, theo ngày hoặc theo khoảng thời gian.
+                </p>
+            </div>
+
+            <button
+                class="modal-close-button"
+                id="closeReportModal"
+                type="button"
+                aria-label="Đóng"
+            >
+                ×
+            </button>
+
+        </div>
+
+        <div class="report-mode-tabs">
+
+            <button
+                class="report-mode-button active"
+                type="button"
+                data-report-mode="month"
+            >
+                Theo tháng
+            </button>
+
+            <button
+                class="report-mode-button"
+                type="button"
+                data-report-mode="date"
+            >
+                Theo ngày
+            </button>
+
+            <button
+                class="report-mode-button"
+                type="button"
+                data-report-mode="range"
+            >
+                Khoảng ngày
+            </button>
+
+        </div>
+
+        <form
+            id="reportFilterForm"
+            method="get"
+            th:action="@{/admin/branches/{id}/report(id=${branch.id})}"
+        >
+
+            <input
+                id="reportMode"
+                type="hidden"
+                name="mode"
+                value="month"
+            >
+
+            <div
+                class="report-filter-section active"
+                data-report-section="month"
+            >
+                <div class="report-input-group">
+
+                    <label for="reportMonth">
+                        Chọn tháng
+                    </label>
+
+                    <input
+                        class="report-input"
+                        id="reportMonth"
+                        type="month"
+                        name="month"
+                    >
+
+                </div>
+            </div>
+
+            <div
+                class="report-filter-section"
+                data-report-section="date"
+            >
+                <div class="report-input-group">
+
+                    <label for="reportDate">
+                        Chọn ngày
+                    </label>
+
+                    <input
+                        class="report-input"
+                        id="reportDate"
+                        type="date"
+                        name="date"
+                        disabled
+                    >
+
+                </div>
+            </div>
+
+            <div
+                class="report-filter-section"
+                data-report-section="range"
+            >
+                <div class="report-grid">
+
+                    <div class="report-input-group">
+
+                        <label for="reportFrom">
+                            Từ ngày
+                        </label>
+
+                        <input
+                            class="report-input"
+                            id="reportFrom"
+                            type="date"
+                            name="from"
+                            disabled
+                        >
+
+                    </div>
+
+                    <div class="report-input-group">
+
+                        <label for="reportTo">
+                            Đến ngày
+                        </label>
+
+                        <input
+                            class="report-input"
+                            id="reportTo"
+                            type="date"
+                            name="to"
+                            disabled
+                        >
+
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="report-dialog-actions">
+
+                <button
+                    class="view-report-button"
+                    type="submit"
+                >
+                    Xem đánh giá
+                </button>
+
+                <button
+                    class="modal-cancel-button"
+                    id="cancelReportModal"
+                    type="button"
+                >
+                    Hủy
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+</div>
+
 <div
     class="loading-overlay"
     id="loadingOverlay"
@@ -837,6 +1356,194 @@
         "Đang cập nhật chi nhánh..."
     );
 </script>
+
+<script>
+    const reportModal =
+        document.getElementById("reportModal");
+
+    const openReportModalButton =
+        document.getElementById("openReportModal");
+
+    const closeReportModalButton =
+        document.getElementById("closeReportModal");
+
+    const cancelReportModalButton =
+        document.getElementById("cancelReportModal");
+
+    const reportModeInput =
+        document.getElementById("reportMode");
+
+    const reportFilterForm =
+        document.getElementById("reportFilterForm");
+
+    const reportModeButtons =
+        document.querySelectorAll("[data-report-mode]");
+
+    const reportSections =
+        document.querySelectorAll("[data-report-section]");
+
+    const reportMonth =
+        document.getElementById("reportMonth");
+
+    const reportDate =
+        document.getElementById("reportDate");
+
+    const reportFrom =
+        document.getElementById("reportFrom");
+
+    const reportTo =
+        document.getElementById("reportTo");
+
+    function getTodayValue() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, "0");
+        const day = String(now.getDate()).padStart(2, "0");
+
+        return {
+            month: year + "-" + month,
+            date: year + "-" + month + "-" + day
+        };
+    }
+
+    function openReportModal() {
+        if (!reportModal) {
+            return;
+        }
+
+        const today = getTodayValue();
+
+        if (reportMonth && !reportMonth.value) {
+            reportMonth.value = today.month;
+        }
+
+        if (reportDate && !reportDate.value) {
+            reportDate.value = today.date;
+        }
+
+        if (reportFrom && !reportFrom.value) {
+            reportFrom.value = today.date;
+        }
+
+        if (reportTo && !reportTo.value) {
+            reportTo.value = today.date;
+        }
+
+        reportModal.classList.add("show");
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeReportModal() {
+        if (!reportModal) {
+            return;
+        }
+
+        reportModal.classList.remove("show");
+        document.body.style.overflow = "";
+    }
+
+    function setReportMode(mode) {
+        reportModeInput.value = mode;
+
+        reportModeButtons.forEach((button) => {
+            button.classList.toggle(
+                "active",
+                button.dataset.reportMode === mode
+            );
+        });
+
+        reportSections.forEach((section) => {
+            section.classList.toggle(
+                "active",
+                section.dataset.reportSection === mode
+            );
+        });
+
+        reportMonth.disabled = mode !== "month";
+        reportDate.disabled = mode !== "date";
+        reportFrom.disabled = mode !== "range";
+        reportTo.disabled = mode !== "range";
+
+        reportMonth.required = mode === "month";
+        reportDate.required = mode === "date";
+        reportFrom.required = mode === "range";
+        reportTo.required = mode === "range";
+    }
+
+    if (openReportModalButton) {
+        openReportModalButton.addEventListener(
+            "click",
+            openReportModal
+        );
+    }
+
+    if (closeReportModalButton) {
+        closeReportModalButton.addEventListener(
+            "click",
+            closeReportModal
+        );
+    }
+
+    if (cancelReportModalButton) {
+        cancelReportModalButton.addEventListener(
+            "click",
+            closeReportModal
+        );
+    }
+
+    if (reportModal) {
+        reportModal.addEventListener("click", (event) => {
+            if (event.target === reportModal) {
+                closeReportModal();
+            }
+        });
+    }
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+            closeReportModal();
+        }
+    });
+
+    reportModeButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+            setReportMode(button.dataset.reportMode);
+        });
+    });
+
+    if (reportFrom && reportTo) {
+        reportFrom.addEventListener("change", () => {
+            reportTo.min = reportFrom.value;
+
+            if (
+                reportTo.value &&
+                reportTo.value < reportFrom.value
+            ) {
+                reportTo.value = reportFrom.value;
+            }
+        });
+
+        reportTo.addEventListener("change", () => {
+            reportFrom.max = reportTo.value;
+        });
+    }
+
+    if (reportFilterForm) {
+        reportFilterForm.addEventListener("submit", (event) => {
+            const mode = reportModeInput.value;
+
+            if (
+                mode === "range" &&
+                reportFrom.value > reportTo.value
+            ) {
+                event.preventDefault();
+                alert("Ngày bắt đầu không được lớn hơn ngày kết thúc.");
+            }
+        });
+    }
+
+    setReportMode("month");
+</script>
 <script>
     if ("serviceWorker" in navigator) {
         window.addEventListener("load", function () {
@@ -859,4 +1566,3 @@
 </script>
 </body>
 </html>
-

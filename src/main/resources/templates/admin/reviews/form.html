@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html
+    lang="vi"
+    xmlns:th="http://www.thymeleaf.org"
+    xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Sửa đánh giá</title>
+
+    <style>
+        *,
+        *::before,
+        *::after{
+            box-sizing:border-box;
+            margin:0;
+            padding:0;
+            font-family:Arial, Helvetica, sans-serif;
+        }
+
+        body{
+            min-height:100vh;
+            padding:28px;
+            background:
+                radial-gradient(
+                    circle at top left,
+                    rgba(255,218,139,.32),
+                    transparent 34%
+                ),
+                linear-gradient(
+                    145deg,
+                    #fffdf8,
+                    #fff6e3
+                );
+            color:#252525;
+        }
+
+        .page{
+            width:min(850px,100%);
+            margin:0 auto;
+        }
+
+        .topbar{
+            display:flex;
+            justify-content:space-between;
+            align-items:flex-start;
+            gap:16px;
+            margin-bottom:24px;
+        }
+
+        .eyebrow{
+            margin-bottom:8px;
+            color:#b77a13;
+            font-size:13px;
+            font-weight:700;
+            letter-spacing:2px;
+            text-transform:uppercase;
+        }
+
+        h1{
+            font-size:clamp(32px,5vw,50px);
+            line-height:1.05;
+        }
+
+        .subtitle{
+            margin-top:10px;
+            color:#777;
+            line-height:1.6;
+        }
+
+        .button{
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            min-height:46px;
+            padding:0 18px;
+            border:0;
+            border-radius:14px;
+            cursor:pointer;
+            text-decoration:none;
+            font-size:14px;
+            font-weight:700;
+            transition:.2s ease;
+        }
+
+        .button:hover{
+            transform:translateY(-2px);
+        }
+
+        .button-dark{
+            background:#232323;
+            color:#fff;
+        }
+
+        .button-primary{
+            background:#efad24;
+            color:#241a06;
+        }
+
+        .button-danger{
+            background:#ffe5e5;
+            color:#b42318;
+        }
+
+        .flash{
+            margin-bottom:18px;
+            padding:15px 18px;
+            border-radius:15px;
+            font-weight:700;
+        }
+
+        .flash-error{
+            background:#fff0f0;
+            color:#b42318;
+            border:1px solid #ffcaca;
+        }
+
+        .flash-success{
+            background:#edfff2;
+            color:#18753c;
+            border:1px solid #bde8ca;
+        }
+
+        .card{
+            padding:28px;
+            border:1px solid rgba(255,255,255,.9);
+            border-radius:24px;
+            background:rgba(255,255,255,.95);
+            box-shadow:0 18px 50px rgba(126,92,29,.10);
+        }
+
+        .review-info{
+            display:grid;
+            grid-template-columns:repeat(2,minmax(0,1fr));
+            gap:14px;
+            margin-bottom:24px;
+            padding:18px;
+            border-radius:18px;
+            background:#fff9ed;
+            border:1px solid #f1dfbb;
+        }
+
+        .info-item{
+            display:flex;
+            flex-direction:column;
+            gap:6px;
+        }
+
+        .info-label{
+            color:#8d7447;
+            font-size:12px;
+            font-weight:700;
+            letter-spacing:1px;
+            text-transform:uppercase;
+        }
+
+        .info-value{
+            color:#292929;
+            font-size:15px;
+            font-weight:700;
+        }
+
+        .grid{
+            display:grid;
+            grid-template-columns:repeat(2,minmax(0,1fr));
+            gap:18px;
+        }
+
+        .field{
+            display:flex;
+            flex-direction:column;
+            gap:8px;
+        }
+
+        .field-full{
+            grid-column:1/-1;
+        }
+
+        label{
+            color:#4e4538;
+            font-size:14px;
+            font-weight:800;
+        }
+
+        input,
+        select,
+        textarea{
+            width:100%;
+            padding:0 14px;
+            border:1px solid #ded6ca;
+            border-radius:14px;
+            background:#fff;
+            color:#222;
+            font-size:15px;
+            outline:none;
+            transition:.2s ease;
+        }
+
+        input,
+        select{
+            height:50px;
+        }
+
+        textarea{
+            min-height:150px;
+            padding:14px;
+            resize:vertical;
+            line-height:1.6;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus{
+            border-color:#efad24;
+            box-shadow:0 0 0 3px rgba(239,173,36,.16);
+        }
+
+        .hint{
+            color:#888;
+            font-size:12px;
+            line-height:1.5;
+        }
+
+        .character-count{
+            margin-top:2px;
+            color:#999;
+            font-size:12px;
+            text-align:right;
+        }
+
+        .footer{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            gap:10px;
+            margin-top:24px;
+        }
+
+        .footer-right{
+            display:flex;
+            gap:10px;
+        }
+
+        @media(max-width:700px){
+
+            body{
+                padding:18px;
+            }
+
+            .topbar{
+                flex-direction:column;
+            }
+
+            .review-info{
+                grid-template-columns:1fr;
+            }
+
+            .grid{
+                grid-template-columns:1fr;
+            }
+
+            .field-full{
+                grid-column:auto;
+            }
+
+            .card{
+                padding:20px;
+            }
+
+            .footer{
+                flex-direction:column-reverse;
+                align-items:stretch;
+            }
+
+            .footer-right{
+                flex-direction:column-reverse;
+            }
+
+            .footer .button{
+                width:100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<main class="page">
+
+    <header class="topbar">
+
+        <div>
+            <p class="eyebrow">
+                Edit Review
+            </p>
+
+            <h1>
+                Sửa đánh giá
+            </h1>
+
+            <p class="subtitle">
+                Cập nhật số sao, lý do và nội dung góp ý của khách hàng.
+            </p>
+        </div>
+
+        <a
+            class="button button-dark"
+            th:href="@{/admin/branches/{code}/report(
+                code=${review.branch.code}
+            )}"
+        >
+            ← Quay lại báo cáo
+        </a>
+
+    </header>
+
+    <div
+        class="flash flash-error"
+        th:if="${error}"
+        th:text="${error}"
+    >
+        Có lỗi xảy ra
+    </div>
+
+    <div
+        class="flash flash-success"
+        th:if="${success}"
+        th:text="${success}"
+    >
+        Cập nhật thành công
+    </div>
+
+    <section class="card">
+
+        <div class="review-info">
+
+            <div class="info-item">
+                <span class="info-label">
+                    Mã đánh giá
+                </span>
+
+                <span
+                    class="info-value"
+                    th:text="${'#' + review.id}"
+                >
+                    #1
+                </span>
+            </div>
+
+            <div class="info-item">
+                <span class="info-label">
+                    Chi nhánh
+                </span>
+
+                <span
+                    class="info-value"
+                    th:text="${review.branch != null
+                        ? review.branch.name
+                        : 'Không xác định'}"
+                >
+                    Chi nhánh Nguyễn Huệ
+                </span>
+            </div>
+
+            <div class="info-item">
+                <span class="info-label">
+                    Thiết bị
+                </span>
+
+                <span
+                    class="info-value"
+                    th:text="${review.deviceName != null
+                        and !#strings.isEmpty(review.deviceName)
+                        ? review.deviceName
+                        : 'Không có thông tin'}"
+                >
+                    iPhone
+                </span>
+            </div>
+
+            <div class="info-item">
+                <span class="info-label">
+                    Thời gian tạo
+                </span>
+
+                <span
+                    class="info-value"
+                    th:text="${review.createdAt != null
+                        ? #temporals.format(
+                            review.createdAt,
+                            'dd/MM/yyyy HH:mm'
+                        )
+                        : 'Không có thông tin'}"
+                >
+                    22/07/2026 20:00
+                </span>
+            </div>
+
+        </div>
+
+        <form
+            th:action="@{/admin/reviews/{id}/edit(
+                id=${review.id}
+            )}"
+            method="post"
+        >
+
+            <div class="grid">
+
+                <div class="field">
+                    <label for="rating">
+                        Số sao
+                    </label>
+
+                    <select
+                        id="rating"
+                        name="rating"
+                        required
+                    >
+                        <option
+                            value="5"
+                            th:selected="${review.rating == 5}"
+                        >
+                            5 sao - Rất hài lòng
+                        </option>
+
+                        <option
+                            value="4"
+                            th:selected="${review.rating == 4}"
+                        >
+                            4 sao - Hài lòng
+                        </option>
+
+                        <option
+                            value="3"
+                            th:selected="${review.rating == 3}"
+                        >
+                            3 sao - Bình thường
+                        </option>
+
+                        <option
+                            value="2"
+                            th:selected="${review.rating == 2}"
+                        >
+                            2 sao - Không hài lòng
+                        </option>
+
+                        <option
+                            value="1"
+                            th:selected="${review.rating == 1}"
+                        >
+                            1 sao - Rất không hài lòng
+                        </option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="reason">
+                        Lý do
+                    </label>
+
+                    <input
+                        id="reason"
+                        type="text"
+                        name="reason"
+                        maxlength="255"
+                        th:value="${review.reason}"
+                        placeholder="Ví dụ: Phục vụ chậm"
+                    >
+
+                    <p class="hint">
+                        Đánh giá từ 1 đến 3 sao bắt buộc phải có lý do.
+                    </p>
+                </div>
+
+                <div class="field field-full">
+                    <label for="comment">
+                        Nội dung góp ý
+                    </label>
+
+                    <textarea
+                        id="comment"
+                        name="comment"
+                        maxlength="2000"
+                        placeholder="Nhập nội dung góp ý..."
+                        th:text="${review.comment}"
+                    ></textarea>
+
+                    <p
+                        class="character-count"
+                        id="commentCount"
+                    >
+                        0 / 2000
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="footer">
+
+                <button
+                    sec:authorize="hasAnyRole('MANAGER', 'LEADER')"
+                    class="button button-danger"
+                    type="button"
+                    id="deleteButton"
+                >
+                    Xóa đánh giá
+                </button>
+
+                <div class="footer-right">
+
+                    <a
+                        class="button button-dark"
+                        th:href="@{/admin/branches/{code}/report(
+                            code=${review.branch.code}
+                        )}"
+                    >
+                        Hủy
+                    </a>
+
+                    <button
+                        class="button button-primary"
+                        type="submit"
+                    >
+                        Lưu thay đổi
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+        <form
+            sec:authorize="hasAnyRole('MANAGER', 'LEADER')"
+            id="deleteForm"
+            th:action="@{/admin/reviews/{id}/delete(
+                id=${review.id}
+            )}"
+            method="post"
+            style="display:none"
+        ></form>
+
+    </section>
+
+</main>
+
+<script>
+    const ratingSelect =
+        document.getElementById("rating");
+
+    const reasonInput =
+        document.getElementById("reason");
+
+    const commentInput =
+        document.getElementById("comment");
+
+    const commentCount =
+        document.getElementById("commentCount");
+
+    const deleteButton =
+        document.getElementById("deleteButton");
+
+    const deleteForm =
+        document.getElementById("deleteForm");
+
+    function updateReasonRequirement() {
+        const rating =
+            Number(ratingSelect.value);
+
+        if (rating <= 3) {
+            reasonInput.required = true;
+        } else {
+            reasonInput.required = false;
+        }
+    }
+
+    function updateCommentCount() {
+        const currentLength =
+            commentInput.value.length;
+
+        commentCount.textContent =
+            currentLength + " / 2000";
+    }
+
+    ratingSelect.addEventListener(
+        "change",
+        updateReasonRequirement
+    );
+
+    commentInput.addEventListener(
+        "input",
+        updateCommentCount
+    );
+
+    if (deleteButton && deleteForm) {
+        deleteButton.addEventListener(
+            "click",
+            function () {
+                const confirmed = confirm(
+                    "Bạn chắc chắn muốn xóa đánh giá này? Hành động này không thể hoàn tác."
+                );
+
+                if (confirmed) {
+                    deleteForm.submit();
+                }
+            }
+        );
+    }
+
+    updateReasonRequirement();
+    updateCommentCount();
+</script>
+
+</body>
+</html>

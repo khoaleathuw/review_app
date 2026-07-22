@@ -2,6 +2,9 @@ package com.example.review.entity;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "branches")
 public class Branch {
@@ -21,6 +24,15 @@ public class Branch {
 
     @Column(nullable = false)
     private Boolean active = true;
+
+    // =========================
+    // Danh sách nhân viên
+    // =========================
+    @OneToMany(mappedBy = "branch", fetch = FetchType.LAZY)
+    private List<User> users = new ArrayList<>();
+
+    public Branch() {
+    }
 
     public Long getId() {
         return id;
@@ -42,6 +54,10 @@ public class Branch {
         return active;
     }
 
+    public List<User> getUsers() {
+        return users;
+    }
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -60,5 +76,9 @@ public class Branch {
 
     public void setActive(Boolean active) {
         this.active = active;
+    }
+
+    public void setUsers(List<User> users) {
+        this.users = users;
     }
 }

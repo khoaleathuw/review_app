@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tạo tài khoản</title>
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0;font-family:Arial,Helvetica,sans-serif}
+        body{min-height:100vh;padding:28px;background:radial-gradient(circle at top left,rgba(255,218,139,.32),transparent 34%),linear-gradient(145deg,#fffdf8,#fff6e3);color:#252525}.page{width:min(850px,100%);margin:0 auto}.topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:24px}.eyebrow{margin-bottom:8px;color:#b77a13;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase}h1{font-size:clamp(32px,5vw,50px);line-height:1.05}.subtitle{margin-top:10px;color:#777;line-height:1.6}.button{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 18px;border:0;border-radius:14px;cursor:pointer;text-decoration:none;font-size:14px;font-weight:700;transition:.2s ease}.button:hover{transform:translateY(-2px)}.button-dark{background:#232323;color:#fff}.button-primary{background:#efad24;color:#241a06}.flash{margin-bottom:18px;padding:15px 18px;border-radius:15px;font-weight:700}.flash-error{background:#fff0f0;color:#b42318;border:1px solid #ffcaca}.card{padding:28px;border:1px solid rgba(255,255,255,.9);border-radius:24px;background:rgba(255,255,255,.95);box-shadow:0 18px 50px rgba(126,92,29,.10)}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.field{display:flex;flex-direction:column;gap:8px}.field-full{grid-column:1/-1}label{color:#4e4538;font-size:14px;font-weight:800}input,select{width:100%;height:50px;padding:0 14px;border:1px solid #ded6ca;border-radius:14px;background:#fff;color:#222;font-size:15px;outline:none;transition:.2s ease}input:focus,select:focus{border-color:#efad24;box-shadow:0 0 0 3px rgba(239,173,36,.16)}.hint{color:#888;font-size:12px;line-height:1.5}.footer{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}@media(max-width:700px){body{padding:18px}.topbar{flex-direction:column}.grid{grid-template-columns:1fr}.field-full{grid-column:auto}.card{padding:20px}.footer{flex-direction:column-reverse}.footer .button{width:100%}}
+    </style>
+</head>
+<body>
+<main class="page">
+    <header class="topbar">
+        <div>
+            <p class="eyebrow">Create Account</p>
+            <h1>Tạo tài khoản mới</h1>
+            <p class="subtitle">Manager tạo tài khoản và gửi thông tin đăng nhập cho nhân viên.</p>
+        </div>
+        <a class="button button-dark" th:href="@{/admin/users}">← Danh sách</a>
+    </header>
+
+    <div class="flash flash-error" th:if="${error}" th:text="${error}">Có lỗi xảy ra</div>
+
+    <section class="card">
+        <form th:action="@{/admin/users}" th:object="${userForm}" method="post">
+            <div class="grid">
+                <div class="field field-full">
+                    <label for="fullName">Họ và tên</label>
+                    <input id="fullName" type="text" th:field="*{fullName}" maxlength="100" placeholder="Ví dụ: Nguyễn Văn A" required>
+                </div>
+
+                <div class="field">
+                    <label for="username">Tên đăng nhập</label>
+                    <input id="username" type="text" th:field="*{username}" minlength="4" maxlength="50" autocomplete="off" placeholder="Ví dụ: nguyenvana" required>
+                    <p class="hint">Không được trùng với tài khoản đã có.</p>
+                </div>
+
+                <div class="field">
+                    <label for="password">Mật khẩu</label>
+                    <input id="password" type="password" th:field="*{password}" minlength="6" autocomplete="new-password" placeholder="Ít nhất 6 ký tự" required>
+                </div>
+
+                <div class="field">
+                    <label for="roleId">Vai trò</label>
+                    <select id="roleId" th:field="*{roleId}" required>
+                        <option value="">-- Chọn vai trò --</option>
+                        <option th:each="role : ${roles}" th:value="${role.id}" th:text="${role.name}">EMPLOYEE</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="branchId">Chi nhánh</label>
+                    <select id="branchId" th:field="*{branchId}">
+                        <option value="">-- Không chọn chi nhánh --</option>
+                        <option th:each="branch : ${branches}" th:value="${branch.id}" th:text="${branch.name}">Chi nhánh Nguyễn Huệ</option>
+                    </select>
+                    <p class="hint">Leader và Employee bắt buộc phải có chi nhánh.</p>
+                </div>
+
+                <div class="field field-full">
+                    <label for="status">Trạng thái</label>
+                    <select id="status" th:field="*{status}" required>
+                        <option value="ACTIVE">Đang hoạt động</option>
+                        <option value="INACTIVE">Đã khóa</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="footer">
+                <a class="button button-dark" th:href="@{/admin/users}">Hủy</a>
+                <button class="button button-primary" type="submit">Tạo tài khoản</button>
+            </div>
+        </form>
+    </section>
+</main>
+
+<script>
+    const roleSelect = document.getElementById("roleId");
+    const branchSelect = document.getElementById("branchId");
+
+    function updateBranchState() {
+        const selectedOption = roleSelect.options[roleSelect.selectedIndex];
+        const roleName = selectedOption ? selectedOption.text.trim().toUpperCase() : "";
+
+        if (roleName === "MANAGER") {
+            branchSelect.value = "";
+            branchSelect.disabled = true;
+        } else {
+            branchSelect.disabled = false;
+        }
+    }
+
+    roleSelect.addEventListener("change", updateBranchState);
+    updateBranchState();
+</script>
+</body>
+</html>

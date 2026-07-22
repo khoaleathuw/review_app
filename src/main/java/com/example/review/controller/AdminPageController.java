@@ -2,9 +2,13 @@ package com.example.review.controller;
 
 import com.example.review.entity.Branch;
 import com.example.review.entity.Review;
+import com.example.review.entity.User;
 import com.example.review.repository.BranchRepository;
 import com.example.review.repository.ReviewRepository;
+import com.example.review.repository.UserRepository;
 
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -17,102 +21,128 @@ public class AdminPageController {
 
     private final ReviewRepository reviewRepository;
     private final BranchRepository branchRepository;
+    private final UserRepository userRepository;
 
     public AdminPageController(
             ReviewRepository reviewRepository,
-            BranchRepository branchRepository
+            BranchRepository branchRepository,
+            UserRepository userRepository
     ) {
         this.reviewRepository = reviewRepository;
         this.branchRepository = branchRepository;
+        this.userRepository = userRepository;
     }
 
     // ==================================================
-    // DASHBOARD THEO MÃ CHI NHÁNH
-    // Ví dụ: /admin/dashboard?branchCode=CN001
+    // DASHBOARD
+    // MANAGER: chọn chi nhánh bằng branchCode
+    // LEADER / EMPLOYEE: chỉ xem chi nhánh được gán
     // ==================================================
 
     @GetMapping("/dashboard")
     public String dashboard(
             @RequestParam(required = false) String branchCode,
+            Authentication authentication,
             Model model
     ) {
 
-        // Trang HTML hiện tại là báo cáo của một chi nhánh,
-        // nên nếu chưa chọn chi nhánh thì quay về danh sách.
-        if (branchCode == null || branchCode.isBlank()) {
-            return "redirect:/admin/branches";
+        User currentUser = getCurrentUser(authentication);
+
+        if (isManager(currentUser)) {
+
+            if (branchCode == null || branchCode.isBlank()) {
+                return "redirect:/admin/branches";
+            }
+
+            String normalizedCode = normalizeBranchCode(branchCode);
+
+            Branch branch = branchRepository
+                    .findByCodeIgnoreCase(normalizedCode)
+                    .orElseThrow(() ->
+                            new IllegalArgumentException(
+                                    "Không tìm thấy chi nhánh với mã: "
+                                            + normalizedCode
+                            )
+                    );
+
+            return renderBranchReport(
+                    branch,
+                    currentUser,
+                    model
+            );
         }
 
-        String normalizedBranchCode =
-                branchCode.trim().toUpperCase();
+        Branch userBranch = requireUserBranch(currentUser);
 
-        Branch branch = branchRepository
-                .findAll()
-                .stream()
-                .filter(item ->
-                        item.getCode() != null
-                                && item.getCode()
-                                .trim()
-                                .equalsIgnoreCase(
-                                        normalizedBranchCode
-                                )
-                )
-                .findFirst()
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Không tìm thấy chi nhánh với mã: "
-                                        + normalizedBranchCode
-                        )
-                );
-
-        return renderBranchReport(branch, model);
+        return renderBranchReport(
+                userBranch,
+                currentUser,
+                model
+        );
     }
 
     // ==================================================
-    // XEM BÁO CÁO BẰNG ID CHI NHÁNH
-    // Ví dụ: /admin/branches/1/report
+    // XEM BÁO CÁO THEO ID CHI NHÁNH
     // ==================================================
 
     @GetMapping("/branches/{id}/report")
     public String branchReport(
             @PathVariable Long id,
+            Authentication authentication,
             Model model
     ) {
 
-        Branch branch = branchRepository
+        User currentUser = getCurrentUser(authentication);
+
+        Branch requestedBranch = branchRepository
                 .findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException(
-                                "Không tìm thấy chi nhánh với ID: "
-                                        + id
+                        new IllegalArgumentException(
+                                "Không tìm thấy chi nhánh với ID: " + id
                         )
                 );
 
-        return renderBranchReport(branch, model);
-    }
+        checkBranchPermission(
+                currentUser,
+                requestedBranch
+        );
 
+        return renderBranchReport(
+                requestedBranch,
+                currentUser,
+                model
+        );
+    }
+    
     // ==================================================
     // TẠO DỮ LIỆU BÁO CÁO
     // ==================================================
 
     private String renderBranchReport(
             Branch branch,
+            User currentUser,
             Model model
     ) {
+
+        if (branch == null) {
+            throw new IllegalArgumentException(
+                    "Chi nhánh không hợp lệ"
+            );
+        }
 
         if (branch.getCode() == null
                 || branch.getCode().isBlank()) {
 
-            throw new RuntimeException(
+            throw new IllegalStateException(
                     "Chi nhánh chưa có mã chi nhánh"
             );
         }
 
         String branchCode =
-                branch.getCode().trim().toUpperCase();
+                normalizeBranchCode(branch.getCode());
 
         List<Review> reviews = reviewRepository
-                .findByBranchCodeOrderByCreatedAtDesc(
+                .findByBranch_CodeOrderByCreatedAtDesc(
                         branchCode
                 );
 
@@ -149,16 +179,36 @@ public class AdminPageController {
         double satisfactionRate =
                 totalReviews == 0
                         ? 0.0
-                        : positiveRatingCount
-                        * 100.0
+                        : positiveRatingCount * 100.0
                         / totalReviews;
 
-        // Quan trọng: dashboard.html đang sử dụng ${branch}
         model.addAttribute("branch", branch);
-
         model.addAttribute("reviews", reviews);
-        model.addAttribute("totalReviews", totalReviews);
-        model.addAttribute("averageRating", averageRating);
+
+        model.addAttribute(
+                "currentUser",
+                currentUser
+        );
+
+        model.addAttribute(
+                "currentRole",
+                getRoleName(currentUser)
+        );
+
+        model.addAttribute(
+                "canEdit",
+                canEdit(currentUser)
+        );
+
+        model.addAttribute(
+                "totalReviews",
+                totalReviews
+        );
+
+        model.addAttribute(
+                "averageRating",
+                averageRating
+        );
 
         model.addAttribute(
                 "lowRatingCount",
@@ -185,7 +235,118 @@ public class AdminPageController {
     }
 
     // ==================================================
-    // ĐẾM ĐÁNH GIÁ THEO SỐ SAO
+    // LẤY USER ĐANG ĐĂNG NHẬP
+    // ==================================================
+
+    private User getCurrentUser(
+            Authentication authentication
+    ) {
+
+        if (authentication == null
+                || !authentication.isAuthenticated()
+                || "anonymousUser".equalsIgnoreCase(
+                        authentication.getName()
+                )) {
+
+            throw new AccessDeniedException(
+                    "Bạn chưa đăng nhập"
+            );
+        }
+
+        User user = userRepository
+                .findByUsername(authentication.getName())
+                .orElseThrow(() ->
+                        new AccessDeniedException(
+                                "Không tìm thấy tài khoản: "
+                                        + authentication.getName()
+                        )
+                );
+
+        if (user.getStatus() == null
+                || !"ACTIVE".equalsIgnoreCase(
+                        user.getStatus().name()
+                )) {
+
+            throw new AccessDeniedException(
+                    "Tài khoản đã bị khóa"
+            );
+        }
+
+        if (user.getRole() == null) {
+            throw new AccessDeniedException(
+                    "Tài khoản chưa được gán quyền"
+            );
+        }
+
+        return user;
+    }
+
+    // ==================================================
+    // KIỂM TRA QUYỀN CHI NHÁNH
+    // ==================================================
+
+    private void checkBranchPermission(
+            User user,
+            Branch requestedBranch
+    ) {
+
+        if (isManager(user)) {
+            return;
+        }
+
+        Branch userBranch = requireUserBranch(user);
+
+        if (!userBranch.getId()
+                .equals(requestedBranch.getId())) {
+
+            throw new AccessDeniedException(
+                    "Bạn không được xem chi nhánh này"
+            );
+        }
+    }
+
+    private Branch requireUserBranch(User user) {
+
+        if (user.getBranch() == null) {
+            throw new AccessDeniedException(
+                    "Tài khoản chưa được gán chi nhánh"
+            );
+        }
+
+        return user.getBranch();
+    }
+
+    // ==================================================
+    // KIỂM TRA ROLE
+    // ==================================================
+
+    private String getRoleName(User user) {
+
+        if (user == null || user.getRole() == null) {
+            return "";
+        }
+
+        String roleName = user.getRole().getName();
+
+        return roleName == null
+                ? ""
+                : roleName.trim().toUpperCase();
+    }
+
+    private boolean isManager(User user) {
+        return "MANAGER".equals(getRoleName(user));
+    }
+
+    private boolean canEdit(User user) {
+
+        String role = getRoleName(user);
+
+        return "MANAGER".equals(role)
+                || "LEADER".equals(role);
+    }
+
+    // ==================================================
+    // ĐẾM ĐÁNH GIÁ THEO SAO
     // ==================================================
 
     private long countByRating(
@@ -199,5 +360,24 @@ public class AdminPageController {
                                 && review.getRating() == rating
                 )
                 .count();
+    }
+
+    // ==================================================
+    // CHUẨN HÓA MÃ CHI NHÁNH
+    // ==================================================
+
+    private String normalizeBranchCode(
+            String branchCode
+    ) {
+
+        if (branchCode == null || branchCode.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Mã chi nhánh không hợp lệ"
+            );
+        }
+
+        return branchCode
+                .trim()
+                .toUpperCase();
     }
 }

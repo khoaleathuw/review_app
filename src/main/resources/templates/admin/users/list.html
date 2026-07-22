@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý tài khoản</title>
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0;font-family:Arial,Helvetica,sans-serif}
+        body{min-height:100vh;padding:28px;background:radial-gradient(circle at top left,rgba(255,218,139,.32),transparent 34%),linear-gradient(145deg,#fffdf8,#fff6e3);color:#252525}
+        .page{width:min(1250px,100%);margin:0 auto}.topbar{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:24px}
+        .eyebrow{margin-bottom:8px;color:#b77a13;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase}h1{font-size:clamp(32px,5vw,52px);line-height:1.05}.subtitle{margin-top:10px;color:#777;line-height:1.6}
+        .actions,.row-actions{display:flex;flex-wrap:wrap;gap:10px}.button{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 18px;border:0;border-radius:14px;cursor:pointer;text-decoration:none;font-size:14px;font-weight:700;transition:.2s ease}.button:hover{transform:translateY(-2px)}.button-primary{background:#efad24;color:#241a06}.button-dark{background:#232323;color:#fff}.button-light{background:#f5f0e7;color:#333}.button-danger{background:#ffe5e5;color:#b42318}
+        .flash{margin-bottom:18px;padding:15px 18px;border-radius:15px;font-weight:700}.flash-success{background:#e8f8ee;color:#14733a;border:1px solid #bee7cc}.flash-error{background:#fff0f0;color:#b42318;border:1px solid #ffcaca}
+        .panel{overflow:hidden;border:1px solid rgba(255,255,255,.9);border-radius:24px;background:rgba(255,255,255,.94);box-shadow:0 18px 50px rgba(126,92,29,.10)}.table-wrap{overflow-x:auto}table{width:100%;min-width:980px;border-collapse:collapse}th,td{padding:17px 18px;text-align:left;border-bottom:1px solid #eee7dc;vertical-align:middle}th{background:#fffaf0;color:#766347;font-size:13px;letter-spacing:.5px;text-transform:uppercase}tbody tr:hover{background:#fffdf8}.user-name{font-weight:800;color:#222}.username{margin-top:4px;color:#888;font-size:13px}.badge{display:inline-flex;align-items:center;justify-content:center;min-height:30px;padding:0 11px;border-radius:999px;font-size:12px;font-weight:800}.badge-manager{background:#fff0c7;color:#9b6500}.badge-leader{background:#e7efff;color:#2756a3}.badge-employee{background:#eee9ff;color:#5a3da8}.badge-active{background:#e8f8ee;color:#14733a}.badge-inactive{background:#f1f1f1;color:#666}.row-actions form{margin:0}.empty{padding:60px 20px;text-align:center;color:#888}.reset-box{display:flex;gap:8px;align-items:center}.reset-box input{width:150px;height:42px;padding:0 12px;border:1px solid #ded6ca;border-radius:12px;outline:none}.reset-box input:focus{border-color:#efad24;box-shadow:0 0 0 3px rgba(239,173,36,.16)}
+        @media(max-width:760px){body{padding:18px}.topbar{align-items:flex-start;flex-direction:column}.actions{width:100%}.actions .button{flex:1}}
+    </style>
+</head>
+<body>
+<main class="page">
+    <header class="topbar">
+        <div>
+            <p class="eyebrow">Account Management</p>
+            <h1>Quản lý tài khoản</h1>
+            <p class="subtitle">Tạo, khóa, mở khóa và đặt lại mật khẩu cho nhân viên.</p>
+        </div>
+        <div class="actions">
+            <a class="button button-dark" th:href="@{/admin/dashboard}">← Dashboard</a>
+            <a class="button button-primary" th:href="@{/admin/users/new}" sec:authorize="hasRole('MANAGER')">+ Tạo tài khoản</a>
+        </div>
+    </header>
+
+    <div class="flash flash-success" th:if="${success}" th:text="${success}">Thao tác thành công</div>
+    <div class="flash flash-error" th:if="${error}" th:text="${error}">Có lỗi xảy ra</div>
+
+    <section class="panel">
+        <div class="table-wrap" th:if="${users != null and !users.isEmpty()}">
+            <table>
+                <thead>
+                <tr>
+                    <th>Tài khoản</th><th>Vai trò</th><th>Chi nhánh</th><th>Trạng thái</th><th>Đặt lại mật khẩu</th><th>Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="user : ${users}">
+                    <td>
+                        <div class="user-name" th:text="${user.fullName}">Nguyễn Văn A</div>
+                        <div class="username" th:text="${'@' + user.username}">@nguyenvana</div>
+                    </td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${user.role != null and user.role.name == 'MANAGER'} ? ' badge-manager' : (${user.role != null and user.role.name == 'LEADER'} ? ' badge-leader' : ' badge-employee')"
+                              th:text="${user.role != null ? user.role.name : 'Chưa có'}">EMPLOYEE</span>
+                    </td>
+                    <td th:text="${user.branch != null ? user.branch.name : 'Toàn hệ thống'}">Chi nhánh Nguyễn Huệ</td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${user.status != null and user.status.name() == 'ACTIVE'} ? ' badge-active' : ' badge-inactive'"
+                              th:text="${user.status != null and user.status.name() == 'ACTIVE' ? 'Đang hoạt động' : 'Đã khóa'}">Đang hoạt động</span>
+                    </td>
+                    <td>
+                        <form class="reset-box" th:action="@{/admin/users/{id}/reset-password(id=${user.id})}" method="post">
+                            <input type="password" name="newPassword" minlength="6" placeholder="Mật khẩu mới" required>
+                            <button class="button button-light" type="submit" onclick="return confirm('Đặt lại mật khẩu cho tài khoản này?')">Đặt lại</button>
+                        </form>
+                    </td>
+                    <td>
+                        <div class="row-actions">
+                            <form th:action="@{/admin/users/{id}/toggle(id=${user.id})}" method="post">
+                                <button class="button"
+                                        th:classappend="${user.status != null and user.status.name() == 'ACTIVE'} ? ' button-danger' : ' button-light'"
+                                        type="submit"
+                                        th:text="${user.status != null and user.status.name() == 'ACTIVE' ? 'Khóa' : 'Mở khóa'}"
+                                        onclick="return confirm('Bạn chắc chắn muốn đổi trạng thái tài khoản này?')">Khóa</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="empty" th:if="${users == null or users.isEmpty()}">Chưa có tài khoản nào trong hệ thống.</div>
+    </section>
+</main>
+</body>
+</html>

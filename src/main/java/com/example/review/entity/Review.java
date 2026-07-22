@@ -21,6 +21,7 @@ public class Review {
     @Column(columnDefinition = "TEXT")
     private String comment;
 
+    @Column(name = "device_name")
     private String deviceName;
 
     @Column(name = "created_at", nullable = false)
@@ -32,9 +33,11 @@ public class Review {
 
     @PrePersist
     public void prePersist() {
-        createdAt = LocalDateTime.now(
-                ZoneId.of("Asia/Ho_Chi_Minh")
-        );
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now(
+                    ZoneId.of("Asia/Ho_Chi_Minh")
+            );
+        }
     }
 
     public Long getId() {
