@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+    <link rel="manifest" href="/manifest.json">
+
+    <meta name="theme-color" content="#efad24">
+
+    <meta name="application-name" content="Review App">
+
+    <meta
+        name="apple-mobile-web-app-capable"
+        content="yes"
+    >
+
+    <meta
+        name="apple-mobile-web-app-status-bar-style"
+        content="default"
+    >
+
+    <meta
+        name="apple-mobile-web-app-title"
+        content="Review App"
+    >
+
+    <link
+        rel="apple-touch-icon"
+        href="/images/icon-192.png"
+    >
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
+
+    <title>Góp ý trải nghiệm</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html,
+        body {
+            width: 100%;
+            min-height: 100%;
+        }
+
+        body {
+            min-height: 100vh;
+            min-height: 100dvh;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 24px;
+
+            background:
+                radial-gradient(
+                    circle at 10% 10%,
+                    rgba(255, 218, 139, 0.42),
+                    transparent 34%
+                ),
+                radial-gradient(
+                    circle at 90% 90%,
+                    rgba(255, 234, 185, 0.75),
+                    transparent 38%
+                ),
+                linear-gradient(
+                    145deg,
+                    #fffdf8 0%,
+                    #fff8e9 48%,
+                    #fffdf8 100%
+                );
+
+            color: #262626;
+        }
+
+        .background-decoration {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid rgba(196, 137, 31, 0.12);
+        }
+
+        .circle-one {
+            width: 300px;
+            height: 300px;
+            top: -140px;
+            right: -90px;
+        }
+
+        .circle-two {
+            width: 210px;
+            height: 210px;
+            bottom: -90px;
+            left: -70px;
+        }
+
+        .card {
+            position: relative;
+            z-index: 1;
+
+            width: min(820px, 100%);
+            padding: 46px;
+
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: 36px;
+
+            background: rgba(255, 255, 255, 0.91);
+
+            box-shadow:
+                0 28px 80px rgba(153, 104, 26, 0.14),
+                inset 0 1px 0 rgba(255, 255, 255, 0.95);
+
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+        }
+
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .back {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+
+            min-height: 42px;
+            padding: 10px 16px;
+
+            border: 1px solid #eee2cc;
+            border-radius: 999px;
+
+            background: #ffffff;
+            color: #8b641e;
+
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 700;
+
+            transition:
+                transform 0.2s ease,
+                background 0.2s ease;
+        }
+
+        .back:hover {
+            background: #fff8e8;
+            transform: translateX(-2px);
+        }
+
+        .branch-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            max-width: 60%;
+            padding: 10px 15px;
+
+            border: 1px solid rgba(179, 123, 24, 0.16);
+            border-radius: 999px;
+
+            background: #fff8e7;
+            color: #956513;
+
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .branch-badge span:last-child {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .branch-dot {
+            flex: 0 0 auto;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #efad24;
+            box-shadow: 0 0 0 5px rgba(239, 173, 36, 0.13);
+        }
+
+        .rating-summary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+
+            min-height: 42px;
+            padding: 9px 16px;
+            margin-bottom: 20px;
+
+            border-radius: 14px;
+
+            background: #fff7dc;
+            color: #946515;
+
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .rating-stars {
+            color: #f4b51e;
+            letter-spacing: 2px;
+        }
+
+        h1 {
+            margin-bottom: 14px;
+
+            color: #202020;
+
+            font-size: clamp(34px, 5vw, 54px);
+            font-weight: 800;
+            line-height: 1.08;
+            letter-spacing: -1.6px;
+        }
+
+        .subtitle {
+            max-width: 640px;
+            margin-bottom: 32px;
+
+            color: #777;
+
+            font-size: 17px;
+            line-height: 1.65;
+        }
+
+        .section-label {
+            display: block;
+            margin-bottom: 14px;
+
+            color: #5c5c5c;
+
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .reasons {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+
+            margin-bottom: 22px;
+        }
+
+        .reason {
+            position: relative;
+        }
+
+        .reason input {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .reason label {
+            min-height: 78px;
+
+            display: flex;
+            align-items: center;
+            gap: 13px;
+
+            padding: 17px 18px;
+
+            border: 2px solid #eee4d2;
+            border-radius: 19px;
+
+            background: #ffffff;
+            color: #3b3b3b;
+
+            cursor: pointer;
+
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.4;
+
+            transition:
+                border-color 0.2s ease,
+                background 0.2s ease,
+                color 0.2s ease,
+                transform 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+        .reason label::before {
+            content: "";
+
+            flex: 0 0 auto;
+
+            width: 19px;
+            height: 19px;
+
+            border: 2px solid #dacdb8;
+            border-radius: 50%;
+
+            background: #ffffff;
+
+            transition: 0.2s ease;
+        }
+
+        .reason label:hover {
+            border-color: #e5bd6a;
+            background: #fffaf0;
+            transform: translateY(-2px);
+        }
+
+        .reason input:checked + label {
+            border-color: #e0a727;
+            background: #fff6dc;
+            color: #855b0d;
+
+            box-shadow: 0 10px 24px rgba(205, 144, 25, 0.12);
+        }
+
+        .reason input:checked + label::before {
+            border: 5px solid #e0a727;
+        }
+
+        .reason input:focus-visible + label {
+            outline: 3px solid rgba(224, 167, 39, 0.2);
+            outline-offset: 3px;
+        }
+
+        .other-reason-wrapper {
+            display: none;
+            margin-top: -8px;
+            margin-bottom: 20px;
+        }
+
+        .other-reason-wrapper.show {
+            display: block;
+        }
+
+        .field-label {
+            display: block;
+            margin-bottom: 9px;
+
+            color: #606060;
+
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .text-input,
+        textarea {
+            width: 100%;
+
+            border: 2px solid #eee4d2;
+            border-radius: 18px;
+
+            background: #ffffff;
+            color: #292929;
+
+            font-size: 16px;
+
+            outline: none;
+
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+        .text-input {
+            min-height: 56px;
+            padding: 0 17px;
+        }
+
+        textarea {
+            min-height: 130px;
+            padding: 17px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        .text-input:focus,
+        textarea:focus {
+            border-color: #e0a727;
+            box-shadow: 0 0 0 4px rgba(224, 167, 39, 0.11);
+        }
+
+        .comment-wrapper {
+            position: relative;
+            margin-bottom: 22px;
+        }
+
+        .character-count {
+            position: absolute;
+            right: 15px;
+            bottom: 13px;
+
+            padding: 3px 7px;
+
+            border-radius: 8px;
+
+            background: rgba(255, 255, 255, 0.9);
+            color: #aaa;
+
+            font-size: 12px;
+        }
+
+        .error-message {
+            display: none;
+
+            margin: -8px 0 18px;
+
+            color: #c15433;
+
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .submit-btn {
+            width: 100%;
+            min-height: 58px;
+
+            border: 0;
+            border-radius: 18px;
+
+            background: #202020;
+            color: #ffffff;
+
+            font-size: 17px;
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition:
+                transform 0.18s ease,
+                opacity 0.18s ease,
+                background 0.18s ease,
+                box-shadow 0.18s ease;
+        }
+
+        .submit-btn:not(:disabled):hover {
+            background: #000000;
+            transform: translateY(-2px);
+            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.14);
+        }
+
+        .submit-btn:not(:disabled):active {
+            transform: scale(0.98);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.38;
+            cursor: not-allowed;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            z-index: 100;
+            inset: 0;
+
+            display: none;
+            align-items: center;
+            justify-content: center;
+
+            background: rgba(255, 253, 248, 0.86);
+
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .loading-overlay.show {
+            display: flex;
+        }
+
+        .loader-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+
+            color: #906317;
+
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .loader {
+            width: 52px;
+            height: 52px;
+
+            border: 5px solid #f2e5ce;
+            border-top-color: #e4a51c;
+            border-radius: 50%;
+
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 680px) {
+            body {
+                align-items: flex-start;
+                padding: 16px;
+            }
+
+            .card {
+                padding: 28px 20px;
+                border-radius: 27px;
+            }
+
+            .top-bar {
+                align-items: flex-start;
+            }
+
+            .branch-badge {
+                max-width: 55%;
+            }
+
+            h1 {
+                letter-spacing: -1px;
+            }
+
+            .subtitle {
+                font-size: 16px;
+                margin-bottom: 26px;
+            }
+
+            .reasons {
+                grid-template-columns: 1fr;
+                gap: 11px;
+            }
+
+            .reason label {
+                min-height: 66px;
+            }
+        }
+
+        @media (max-width: 430px) {
+            .back {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+
+            .branch-badge {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="background-decoration">
+    <div class="circle circle-one"></div>
+    <div class="circle circle-two"></div>
+</div>
+
+<main class="card">
+
+    <div class="top-bar">
+        <a
+            class="back"
+            th:href="@{/review/{code}(code=${branchCode})}"
+        >
+            ← Quay lại
+        </a>
+
+        <div class="branch-badge" th:if="${branchName != null}">
+            <span class="branch-dot"></span>
+
+            <span th:text="${branchName}">
+                Tên chi nhánh
+            </span>
+        </div>
+    </div>
+
+    <div class="rating-summary">
+        <span>Đánh giá của bạn:</span>
+
+        <span
+            class="rating-stars"
+            th:text="${#strings.repeat('★', rating)}"
+        >
+            ★★★
+        </span>
+
+        <span th:text="${rating + '/5'}">
+            3/5
+        </span>
+    </div>
+
+    <h1>Điều gì chưa ổn?</h1>
+
+    <p class="subtitle">
+        Góp ý của bạn sẽ giúp cửa hàng hiểu vấn đề và cải thiện trải nghiệm tốt hơn.
+    </p>
+
+    <form
+        id="feedbackForm"
+        th:action="@{/review/submit}"
+        method="post"
+    >
+        <input
+            type="hidden"
+            name="rating"
+            th:value="${rating}"
+        >
+
+        <input
+            type="hidden"
+            name="branchCode"
+            th:value="${branchCode}"
+        >
+
+        <span class="section-label">
+            Chọn một lý do phù hợp
+        </span>
+
+        <div class="reasons">
+
+            <div class="reason">
+                <input
+                    id="slow"
+                    type="radio"
+                    name="reason"
+                    value="Phục vụ chậm"
+                    required
+                >
+
+                <label for="slow">
+                    Phục vụ chậm
+                </label>
+            </div>
+
+            <div class="reason">
+                <input
+                    id="staff"
+                    type="radio"
+                    name="reason"
+                    value="Thái độ nhân viên"
+                >
+
+                <label for="staff">
+                    Thái độ nhân viên
+                </label>
+            </div>
+
+            <div class="reason">
+                <input
+                    id="quality"
+                    type="radio"
+                    name="reason"
+                    value="Chất lượng sản phẩm"
+                >
+
+                <label for="quality">
+                    Chất lượng sản phẩm
+                </label>
+            </div>
+
+            <div class="reason">
+                <input
+                    id="clean"
+                    type="radio"
+                    name="reason"
+                    value="Không gian chưa sạch"
+                >
+
+                <label for="clean">
+                    Không gian chưa sạch
+                </label>
+            </div>
+
+            <div class="reason">
+                <input
+                    id="price"
+                    type="radio"
+                    name="reason"
+                    value="Giá chưa phù hợp"
+                >
+
+                <label for="price">
+                    Giá chưa phù hợp
+                </label>
+            </div>
+
+            <div class="reason">
+                <input
+                    id="other"
+                    type="radio"
+                    name="reason"
+                    value="Lý do khác"
+                >
+
+                <label for="other">
+                    Lý do khác
+                </label>
+            </div>
+
+        </div>
+
+        <div
+            class="other-reason-wrapper"
+            id="otherReasonWrapper"
+        >
+            <label
+                class="field-label"
+                for="otherReason"
+            >
+                Lý do cụ thể
+            </label>
+
+            <input
+                class="text-input"
+                id="otherReason"
+                name="otherReason"
+                type="text"
+                maxlength="150"
+                placeholder="Nhập lý do bạn chưa hài lòng..."
+            >
+        </div>
+
+        <label
+            class="field-label"
+            for="comment"
+        >
+            Chia sẻ thêm
+            <span style="font-weight: 400; color: #999;">
+                (không bắt buộc)
+            </span>
+        </label>
+
+        <div class="comment-wrapper">
+            <textarea
+                id="comment"
+                name="comment"
+                maxlength="500"
+                placeholder="Bạn có thể chia sẻ chi tiết hơn..."
+            ></textarea>
+
+            <span
+                class="character-count"
+                id="characterCount"
+            >
+                0/500
+            </span>
+        </div>
+
+        <p
+            class="error-message"
+            id="errorMessage"
+        >
+            Vui lòng chọn một lý do trước khi gửi.
+        </p>
+
+        <button
+            class="submit-btn"
+            id="submitButton"
+            type="submit"
+            disabled
+        >
+            Gửi góp ý
+        </button>
+    </form>
+
+</main>
+
+<div
+    class="loading-overlay"
+    id="loadingOverlay"
+>
+    <div class="loader-box">
+        <div class="loader"></div>
+        <span>Đang ghi nhận góp ý...</span>
+    </div>
+</div>
+
+<script>
+    const feedbackForm =
+        document.getElementById("feedbackForm");
+
+    const reasonInputs =
+        document.querySelectorAll('input[name="reason"]');
+
+    const submitButton =
+        document.getElementById("submitButton");
+
+    const errorMessage =
+        document.getElementById("errorMessage");
+
+    const otherReasonWrapper =
+        document.getElementById("otherReasonWrapper");
+
+    const otherReasonInput =
+        document.getElementById("otherReason");
+
+    const commentInput =
+        document.getElementById("comment");
+
+    const characterCount =
+        document.getElementById("characterCount");
+
+    const loadingOverlay =
+        document.getElementById("loadingOverlay");
+
+    let submitting = false;
+
+    function getSelectedReason() {
+        return document.querySelector(
+            'input[name="reason"]:checked'
+        );
+    }
+
+    function updateFormState() {
+        const selectedReason = getSelectedReason();
+
+        submitButton.disabled = !selectedReason;
+
+        errorMessage.classList.remove("show");
+
+        const isOther =
+            selectedReason &&
+            selectedReason.value === "Lý do khác";
+
+        otherReasonWrapper.classList.toggle(
+            "show",
+            isOther
+        );
+
+        otherReasonInput.required = Boolean(isOther);
+
+        if (!isOther) {
+            otherReasonInput.value = "";
+        }
+    }
+
+    reasonInputs.forEach((input) => {
+        input.addEventListener(
+            "change",
+            updateFormState
+        );
+    });
+
+    commentInput.addEventListener("input", () => {
+        characterCount.textContent =
+            `${commentInput.value.length}/500`;
+    });
+
+    feedbackForm.addEventListener("submit", (event) => {
+        if (submitting) {
+            event.preventDefault();
+            return;
+        }
+
+        const selectedReason = getSelectedReason();
+
+        if (!selectedReason) {
+            event.preventDefault();
+
+            errorMessage.classList.add("show");
+            return;
+        }
+
+        if (
+            selectedReason.value === "Lý do khác" &&
+            !otherReasonInput.value.trim()
+        ) {
+            event.preventDefault();
+
+            otherReasonInput.focus();
+            return;
+        }
+
+        submitting = true;
+        submitButton.disabled = true;
+        loadingOverlay.classList.add("show");
+    });
+
+    updateFormState();
+</script>
+<script>
+    if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+            navigator.serviceWorker
+                .register("/service-worker.js")
+                .then(function (registration) {
+                    console.log(
+                        "Service Worker đã đăng ký:",
+                        registration.scope
+                    );
+                })
+                .catch(function (error) {
+                    console.error(
+                        "Không thể đăng ký Service Worker:",
+                        error
+                    );
+                });
+        });
+    }
+</script>
+</body>
+</html>

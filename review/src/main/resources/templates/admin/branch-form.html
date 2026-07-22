@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+    <head>
+
+        <link rel="manifest" href="/manifest.json">
+
+    <meta name="theme-color" content="#efad24">
+
+    <meta name="application-name" content="Review App">
+
+    <meta
+        name="apple-mobile-web-app-capable"
+        content="yes"
+    >
+
+    <meta
+        name="apple-mobile-web-app-status-bar-style"
+        content="default"
+    >
+
+    <meta
+        name="apple-mobile-web-app-title"
+        content="Review App"
+    >
+
+    <link
+        rel="apple-touch-icon"
+        href="/images/icon-192.png"
+    >
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title th:text="${formTitle}">
+        Thêm chi nhánh
+    </title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html,
+        body {
+            width: 100%;
+            min-height: 100%;
+        }
+
+        body {
+            min-height: 100vh;
+            min-height: 100dvh;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 24px;
+
+            background:
+                radial-gradient(
+                    circle at 10% 10%,
+                    rgba(255, 218, 139, 0.45),
+                    transparent 34%
+                ),
+                radial-gradient(
+                    circle at 90% 90%,
+                    rgba(255, 234, 185, 0.8),
+                    transparent 38%
+                ),
+                linear-gradient(
+                    145deg,
+                    #fffdf8 0%,
+                    #fff8e9 48%,
+                    #fffdf8 100%
+                );
+
+            color: #262626;
+        }
+
+        .background-decoration {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .circle {
+            position: absolute;
+
+            border: 1px solid rgba(196, 137, 31, 0.12);
+            border-radius: 50%;
+        }
+
+        .circle-one {
+            width: 310px;
+            height: 310px;
+
+            top: -145px;
+            right: -95px;
+        }
+
+        .circle-two {
+            width: 220px;
+            height: 220px;
+
+            bottom: -95px;
+            left: -75px;
+        }
+
+        .sparkle {
+            position: absolute;
+
+            color: rgba(222, 158, 34, 0.5);
+
+            animation: sparkleFloat 3.5s ease-in-out infinite;
+        }
+
+        .sparkle-one {
+            top: 15%;
+            left: 11%;
+
+            font-size: 26px;
+        }
+
+        .sparkle-two {
+            top: 24%;
+            right: 13%;
+
+            font-size: 20px;
+
+            animation-delay: 0.8s;
+        }
+
+        .sparkle-three {
+            right: 18%;
+            bottom: 16%;
+
+            font-size: 25px;
+
+            animation-delay: 1.4s;
+        }
+
+        @keyframes sparkleFloat {
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.45;
+            }
+
+            50% {
+                transform: translateY(-10px) rotate(8deg);
+                opacity: 1;
+            }
+        }
+
+        .page {
+            position: relative;
+            z-index: 1;
+
+            width: min(720px, 100%);
+        }
+
+        .form-card {
+            padding: 46px;
+
+            border: 1px solid rgba(255, 255, 255, 0.92);
+            border-radius: 36px;
+
+            background: rgba(255, 255, 255, 0.91);
+
+            box-shadow:
+                0 28px 80px rgba(153, 104, 26, 0.14),
+                inset 0 1px 0 rgba(255, 255, 255, 0.95);
+
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+        }
+
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+
+            margin-bottom: 30px;
+        }
+
+        .back-button {
+            min-height: 42px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+
+            padding: 10px 16px;
+
+            border: 1px solid #eee2cc;
+            border-radius: 999px;
+
+            background: #ffffff;
+            color: #8b641e;
+
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 700;
+
+            transition:
+                transform 0.18s ease,
+                background 0.18s ease;
+        }
+
+        .back-button:hover {
+            background: #fff8e8;
+            transform: translateX(-2px);
+        }
+
+        .mode-badge {
+            min-height: 38px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+
+            padding: 9px 15px;
+
+            border: 1px solid rgba(179, 123, 24, 0.16);
+            border-radius: 999px;
+
+            background: #fff8e7;
+            color: #956513;
+
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .mode-dot {
+            width: 8px;
+            height: 8px;
+
+            border-radius: 50%;
+
+            background: #efad24;
+
+            box-shadow:
+                0 0 0 5px rgba(239, 173, 36, 0.13);
+        }
+
+        .eyebrow {
+            margin-bottom: 12px;
+
+            color: #b37b18;
+
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 2.3px;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin-bottom: 14px;
+
+            color: #202020;
+
+            font-size: clamp(36px, 6vw, 54px);
+            font-weight: 800;
+            line-height: 1.08;
+            letter-spacing: -1.8px;
+        }
+
+        .description {
+            max-width: 560px;
+
+            margin-bottom: 32px;
+
+            color: #777777;
+
+            font-size: 16px;
+            line-height: 1.65;
+        }
+
+        .alert {
+            padding: 15px 17px;
+            margin-bottom: 22px;
+
+            border-radius: 16px;
+
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1.5;
+        }
+
+        .alert-error {
+            border: 1px solid #ffd4c8;
+
+            background: #fff0ec;
+            color: #b4482c;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        .form-label {
+            display: block;
+
+            margin-bottom: 9px;
+
+            color: #555555;
+
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .required-mark {
+            color: #d25b3a;
+        }
+
+        .form-input {
+            width: 100%;
+            min-height: 58px;
+
+            padding: 0 18px;
+
+            border: 2px solid #eee4d2;
+            border-radius: 18px;
+
+            background: #ffffff;
+            color: #292929;
+
+            font-size: 16px;
+
+            outline: none;
+
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease,
+                transform 0.2s ease;
+        }
+
+        .form-input::placeholder {
+            color: #b1b1b1;
+        }
+
+        .form-input:hover {
+            border-color: #e6cf9e;
+        }
+
+        .form-input:focus {
+            border-color: #e0a727;
+
+            box-shadow:
+                0 0 0 4px rgba(224, 167, 39, 0.11);
+
+            transform: translateY(-1px);
+        }
+
+        .input-hint {
+            display: block;
+
+            margin-top: 8px;
+
+            color: #999999;
+
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .form-actions {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 12px;
+
+            margin-top: 30px;
+        }
+
+        .submit-button,
+        .cancel-button {
+            min-height: 58px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 0 22px;
+
+            border-radius: 18px;
+
+            font-size: 16px;
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition:
+                transform 0.18s ease,
+                background 0.18s ease,
+                box-shadow 0.18s ease;
+        }
+
+        .submit-button {
+            border: 0;
+
+            background: #202020;
+            color: #ffffff;
+        }
+
+        .submit-button:hover {
+            background: #000000;
+
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 14px 30px rgba(0, 0, 0, 0.14);
+        }
+
+        .submit-button:active {
+            transform: scale(0.98);
+        }
+
+        .cancel-button {
+            border: 1px solid #eee2cc;
+
+            background: #ffffff;
+            color: #8b641e;
+
+            text-decoration: none;
+        }
+
+        .cancel-button:hover {
+            background: #fff8e8;
+            transform: translateY(-2px);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            z-index: 100;
+            inset: 0;
+
+            display: none;
+            align-items: center;
+            justify-content: center;
+
+            background: rgba(255, 253, 248, 0.86);
+
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .loading-overlay.show {
+            display: flex;
+        }
+
+        .loader-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+
+            color: #906317;
+
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .loader {
+            width: 52px;
+            height: 52px;
+
+            border: 5px solid #f2e5ce;
+            border-top-color: #e4a51c;
+            border-radius: 50%;
+
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 650px) {
+            body {
+                align-items: flex-start;
+
+                padding: 16px;
+            }
+
+            .form-card {
+                padding: 28px 20px;
+
+                border-radius: 28px;
+            }
+
+            .top-bar {
+                align-items: flex-start;
+            }
+
+            .mode-badge {
+                max-width: 52%;
+
+                text-align: center;
+            }
+
+            h1 {
+                letter-spacing: -1.2px;
+            }
+
+            .form-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .cancel-button {
+                order: 2;
+            }
+        }
+
+        @media (max-width: 430px) {
+            .back-button,
+            .mode-badge {
+                padding: 9px 12px;
+
+                font-size: 12px;
+            }
+
+            .form-card {
+                padding: 24px 17px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="background-decoration">
+    <div class="circle circle-one"></div>
+    <div class="circle circle-two"></div>
+
+    <span class="sparkle sparkle-one">✦</span>
+    <span class="sparkle sparkle-two">✧</span>
+    <span class="sparkle sparkle-three">✦</span>
+</div>
+
+<main class="page">
+
+    <section class="form-card">
+
+        <div class="top-bar">
+
+            <a
+                class="back-button"
+                th:href="@{/admin/branches}"
+            >
+                ← Quay lại
+            </a>
+
+            <div class="mode-badge">
+                <span class="mode-dot"></span>
+
+                <span th:if="${editMode}">
+                    Chỉnh sửa
+                </span>
+
+                <span th:unless="${editMode}">
+                    Chi nhánh mới
+                </span>
+            </div>
+
+        </div>
+
+        <p class="eyebrow">
+            Branch Management
+        </p>
+
+        <h1 th:text="${formTitle}">
+            Thêm chi nhánh
+        </h1>
+
+        <p
+            class="description"
+            th:if="${editMode}"
+        >
+            Cập nhật tên và địa chỉ của chi nhánh. Mã chi nhánh sẽ được giữ nguyên.
+        </p>
+
+        <p
+            class="description"
+            th:unless="${editMode}"
+        >
+            Nhập thông tin để tạo chi nhánh mới. Hệ thống sẽ tự động tạo mã chi nhánh.
+        </p>
+
+        <div
+            class="alert alert-error"
+            th:if="${errorMessage != null}"
+            th:text="${errorMessage}"
+        >
+            Có lỗi xảy ra.
+        </div>
+
+        <!-- FORM CHỈNH SỬA -->
+        <form
+            id="editBranchForm"
+            th:if="${editMode}"
+            th:action="@{/admin/branches/{id}/update(id=${branch.id})}"
+            method="post"
+        >
+
+            <div class="form-group">
+                <label
+                    class="form-label"
+                    for="editName"
+                >
+                    Tên chi nhánh
+                    <span class="required-mark">*</span>
+                </label>
+
+                <input
+                    class="form-input"
+                    id="editName"
+                    type="text"
+                    name="name"
+                    th:value="${branch.name}"
+                    maxlength="150"
+                    placeholder="Ví dụ: Chi nhánh Nguyễn Huệ"
+                    autocomplete="organization"
+                    required
+                >
+
+                <span class="input-hint">
+                    Tên này sẽ hiển thị trên trang đánh giá của khách hàng.
+                </span>
+            </div>
+
+            <div class="form-group">
+                <label
+                    class="form-label"
+                    for="editAddress"
+                >
+                    Địa chỉ
+                </label>
+
+                <input
+                    class="form-input"
+                    id="editAddress"
+                    type="text"
+                    name="address"
+                    th:value="${branch.address}"
+                    maxlength="255"
+                    placeholder="Ví dụ: 123 Nguyễn Huệ, Quận 1"
+                    autocomplete="street-address"
+                >
+
+                <span class="input-hint">
+                    Có thể để trống nếu chưa có địa chỉ cụ thể.
+                </span>
+            </div>
+
+            <div class="form-actions">
+                <button
+                    class="submit-button"
+                    type="submit"
+                >
+                    Lưu thay đổi
+                </button>
+
+                <a
+                    class="cancel-button"
+                    th:href="@{/admin/branches}"
+                >
+                    Hủy
+                </a>
+            </div>
+
+        </form>
+
+        <!-- FORM THÊM MỚI -->
+        <form
+            id="createBranchForm"
+            th:unless="${editMode}"
+            th:action="@{/admin/branches/create}"
+            method="post"
+        >
+
+            <div class="form-group">
+                <label
+                    class="form-label"
+                    for="createName"
+                >
+                    Tên chi nhánh
+                    <span class="required-mark">*</span>
+                </label>
+
+                <input
+                    class="form-input"
+                    id="createName"
+                    type="text"
+                    name="name"
+                    maxlength="150"
+                    placeholder="Ví dụ: Chi nhánh Nguyễn Huệ"
+                    autocomplete="organization"
+                    required
+                >
+
+                <span class="input-hint">
+                    Hệ thống sẽ dựa vào thông tin này để tạo mã chi nhánh.
+                </span>
+            </div>
+
+            <div class="form-group">
+                <label
+                    class="form-label"
+                    for="createAddress"
+                >
+                    Địa chỉ
+                </label>
+
+                <input
+                    class="form-input"
+                    id="createAddress"
+                    type="text"
+                    name="address"
+                    maxlength="255"
+                    placeholder="Ví dụ: 123 Nguyễn Huệ, Quận 1"
+                    autocomplete="street-address"
+                >
+
+                <span class="input-hint">
+                    Địa chỉ sẽ được hiển thị bên dưới trang đánh giá.
+                </span>
+            </div>
+
+            <div class="form-actions">
+                <button
+                    class="submit-button"
+                    type="submit"
+                >
+                    Thêm chi nhánh
+                </button>
+
+                <a
+                    class="cancel-button"
+                    th:href="@{/admin/branches}"
+                >
+                    Hủy
+                </a>
+            </div>
+
+        </form>
+
+    </section>
+
+</main>
+
+<div
+    class="loading-overlay"
+    id="loadingOverlay"
+>
+    <div class="loader-box">
+        <div class="loader"></div>
+
+        <span id="loadingText">
+            Đang lưu chi nhánh...
+        </span>
+    </div>
+</div>
+
+<script>
+    const loadingOverlay =
+        document.getElementById("loadingOverlay");
+
+    const loadingText =
+        document.getElementById("loadingText");
+
+    const createBranchForm =
+        document.getElementById("createBranchForm");
+
+    const editBranchForm =
+        document.getElementById("editBranchForm");
+
+    let submitting = false;
+
+    function handleSubmit(form, message) {
+        if (!form) {
+            return;
+        }
+
+        form.addEventListener("submit", (event) => {
+            if (submitting) {
+                event.preventDefault();
+                return;
+            }
+
+            const nameInput =
+                form.querySelector('input[name="name"]');
+
+            if (!nameInput.value.trim()) {
+                event.preventDefault();
+
+                nameInput.focus();
+                return;
+            }
+
+            submitting = true;
+
+            nameInput.value =
+                nameInput.value.trim();
+
+            const addressInput =
+                form.querySelector('input[name="address"]');
+
+            if (addressInput) {
+                addressInput.value =
+                    addressInput.value.trim();
+            }
+
+            loadingText.textContent = message;
+            loadingOverlay.classList.add("show");
+        });
+    }
+
+    handleSubmit(
+        createBranchForm,
+        "Đang tạo chi nhánh..."
+    );
+
+    handleSubmit(
+        editBranchForm,
+        "Đang cập nhật chi nhánh..."
+    );
+</script>
+<script>
+    if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+            navigator.serviceWorker
+                .register("/service-worker.js")
+                .then(function (registration) {
+                    console.log(
+                        "Service Worker đã đăng ký:",
+                        registration.scope
+                    );
+                })
+                .catch(function (error) {
+                    console.error(
+                        "Không thể đăng ký Service Worker:",
+                        error
+                    );
+                });
+        });
+    }
+</script>
+</body>
+</html>
+

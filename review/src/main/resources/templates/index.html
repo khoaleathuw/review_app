@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+    <link rel="manifest" href="/manifest.json">
+
+    <meta name="theme-color" content="#efad24">
+
+    <meta name="application-name" content="Review App">
+
+    <meta
+        name="apple-mobile-web-app-capable"
+        content="yes"
+    >
+
+    <meta
+        name="apple-mobile-web-app-status-bar-style"
+        content="default"
+    >
+
+    <meta
+        name="apple-mobile-web-app-title"
+        content="Review App"
+    >
+
+    <link
+        rel="apple-touch-icon"
+        href="/images/icon-192.png"
+    >
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
+
+    <title th:text="'Đánh giá - ' + ${branch.name}">
+        Đánh giá trải nghiệm
+    </title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html,
+        body {
+            width: 100%;
+            min-height: 100%;
+        }
+
+        body {
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding: 24px;
+
+            background:
+                radial-gradient(
+                    circle at 10% 10%,
+                    rgba(255, 218, 139, 0.45),
+                    transparent 34%
+                ),
+                radial-gradient(
+                    circle at 90% 90%,
+                    rgba(255, 234, 185, 0.8),
+                    transparent 38%
+                ),
+                linear-gradient(
+                    145deg,
+                    #fffdf8 0%,
+                    #fff8e9 48%,
+                    #fffdf8 100%
+                );
+
+            color: #262626;
+        }
+
+        .background-decoration {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .circle {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid rgba(196, 137, 31, 0.12);
+        }
+
+        .circle-one {
+            width: 280px;
+            height: 280px;
+            top: -120px;
+            right: -80px;
+        }
+
+        .circle-two {
+            width: 190px;
+            height: 190px;
+            bottom: -80px;
+            left: -60px;
+        }
+
+        .card {
+            position: relative;
+            z-index: 1;
+
+            width: min(820px, 100%);
+            padding: 56px 48px;
+
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: 38px;
+
+            background: rgba(255, 255, 255, 0.88);
+            box-shadow:
+                0 28px 80px rgba(153, 104, 26, 0.14),
+                inset 0 1px 0 rgba(255, 255, 255, 0.95);
+
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+
+            text-align: center;
+        }
+
+        .branch-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+
+            min-height: 38px;
+            padding: 9px 16px;
+            margin-bottom: 24px;
+
+            border: 1px solid rgba(179, 123, 24, 0.15);
+            border-radius: 999px;
+
+            background: #fff8e7;
+            color: #9c6913;
+
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .branch-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #efad24;
+            box-shadow: 0 0 0 5px rgba(239, 173, 36, 0.13);
+        }
+
+        .eyebrow {
+            margin-bottom: 14px;
+
+            color: #b37b18;
+
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            max-width: 650px;
+            margin: 0 auto 18px;
+
+            color: #202020;
+
+            font-size: clamp(38px, 6vw, 64px);
+            font-weight: 800;
+            line-height: 1.06;
+            letter-spacing: -2px;
+        }
+
+        .description {
+            max-width: 540px;
+            margin: 0 auto 44px;
+
+            color: #737373;
+
+            font-size: 18px;
+            line-height: 1.65;
+        }
+
+        .stars-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            min-height: 130px;
+            padding: 20px 16px;
+            margin-bottom: 22px;
+
+            border: 1px solid #f0e4ce;
+            border-radius: 28px;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(255, 251, 241, 0.95),
+                    rgba(255, 255, 255, 0.95)
+                );
+        }
+
+        .stars {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(4px, 2vw, 18px);
+        }
+
+        .star {
+            position: relative;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            width: clamp(58px, 10vw, 92px);
+            height: clamp(58px, 10vw, 92px);
+
+            border: 0;
+            border-radius: 24px;
+
+            background: transparent;
+            color: #dedede;
+
+            font-size: clamp(50px, 8vw, 78px);
+            line-height: 1;
+
+            cursor: pointer;
+
+            transition:
+                color 0.18s ease,
+                transform 0.18s ease,
+                background 0.18s ease,
+                box-shadow 0.18s ease;
+        }
+
+        .star:hover,
+        .star.preview,
+        .star.selected {
+            color: #f5b51b;
+            transform: translateY(-5px) scale(1.06);
+        }
+
+        .star:hover {
+            background: rgba(255, 241, 197, 0.65);
+            box-shadow: 0 14px 28px rgba(205, 144, 25, 0.13);
+        }
+
+        .star:active {
+            transform: translateY(-1px) scale(0.94);
+        }
+
+        .feedback-text {
+            min-height: 27px;
+            margin-bottom: 12px;
+
+            color: #946515;
+
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        .hint {
+            color: #9a9a9a;
+            font-size: 15px;
+        }
+
+        .branch-address {
+            margin-top: 10px;
+            color: #aaa;
+            font-size: 13px;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            z-index: 99;
+            inset: 0;
+
+            display: none;
+            align-items: center;
+            justify-content: center;
+
+            background: rgba(255, 253, 248, 0.86);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .loading-overlay.show {
+            display: flex;
+        }
+
+        .loader {
+            width: 54px;
+            height: 54px;
+
+            border: 5px solid #f3e6cd;
+            border-top-color: #e7a71b;
+            border-radius: 50%;
+
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (hover: none) {
+            .star:hover {
+                color: #dedede;
+                background: transparent;
+                box-shadow: none;
+                transform: none;
+            }
+
+            .star.preview,
+            .star.selected {
+                color: #f5b51b;
+                transform: translateY(-3px) scale(1.04);
+            }
+        }
+
+        @media (max-width: 700px) {
+            body {
+                padding: 16px;
+            }
+
+            .card {
+                padding: 42px 20px;
+                border-radius: 28px;
+            }
+
+            h1 {
+                letter-spacing: -1.3px;
+            }
+
+            .description {
+                margin-bottom: 32px;
+                font-size: 16px;
+            }
+
+            .stars-wrapper {
+                min-height: 105px;
+                padding: 14px 6px;
+                border-radius: 22px;
+            }
+
+            .stars {
+                gap: 0;
+            }
+
+            .star {
+                width: calc((100vw - 78px) / 5);
+                max-width: 76px;
+                height: calc((100vw - 78px) / 5);
+                max-height: 76px;
+                border-radius: 18px;
+            }
+        }
+
+        @media (max-height: 650px) {
+            body {
+                overflow-y: auto;
+                align-items: flex-start;
+            }
+
+            .card {
+                margin: 12px 0;
+                padding-top: 34px;
+                padding-bottom: 34px;
+            }
+
+            .description {
+                margin-bottom: 22px;
+            }
+
+            .stars-wrapper {
+                min-height: 90px;
+                margin-bottom: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="background-decoration">
+    <div class="circle circle-one"></div>
+    <div class="circle circle-two"></div>
+</div>
+
+<main class="card">
+
+    <div class="branch-badge">
+        <span class="branch-dot"></span>
+
+        <span th:text="${branch.name}">
+            Tên chi nhánh
+        </span>
+    </div>
+
+    <div class="eyebrow">
+        Customer Experience
+    </div>
+
+    <h1>Bạn cảm thấy thế nào?</h1>
+
+    <p class="description">
+        Hãy chạm vào số sao phù hợp với trải nghiệm của bạn hôm nay.
+    </p>
+
+    <form
+        id="ratingForm"
+        th:action="@{/rating}"
+        method="post"
+    >
+        <input
+            type="hidden"
+            name="rating"
+            id="ratingInput"
+        >
+
+        <input
+            type="hidden"
+            name="branchCode"
+            th:value="${branch.code}"
+        >
+
+        <div class="stars-wrapper">
+            <div
+                class="stars"
+                id="starsContainer"
+                role="radiogroup"
+                aria-label="Chọn số sao đánh giá"
+            >
+                <button
+                    type="button"
+                    class="star"
+                    data-rating="1"
+                    role="radio"
+                    aria-checked="false"
+                    aria-label="1 sao"
+                >★</button>
+
+                <button
+                    type="button"
+                    class="star"
+                    data-rating="2"
+                    role="radio"
+                    aria-checked="false"
+                    aria-label="2 sao"
+                >★</button>
+
+                <button
+                    type="button"
+                    class="star"
+                    data-rating="3"
+                    role="radio"
+                    aria-checked="false"
+                    aria-label="3 sao"
+                >★</button>
+
+                <button
+                    type="button"
+                    class="star"
+                    data-rating="4"
+                    role="radio"
+                    aria-checked="false"
+                    aria-label="4 sao"
+                >★</button>
+
+                <button
+                    type="button"
+                    class="star"
+                    data-rating="5"
+                    role="radio"
+                    aria-checked="false"
+                    aria-label="5 sao"
+                >★</button>
+            </div>
+        </div>
+    </form>
+
+    <p class="feedback-text" id="feedbackText"></p>
+
+    <p class="hint">
+        Chạm vào một ngôi sao để tiếp tục
+    </p>
+
+    <p
+        class="branch-address"
+        th:if="${branch.address != null and !branch.address.isBlank()}"
+        th:text="${branch.address}"
+    >
+        Địa chỉ chi nhánh
+    </p>
+
+</main>
+
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loader"></div>
+</div>
+
+<script>
+    const stars = Array.from(document.querySelectorAll(".star"));
+    const ratingInput = document.getElementById("ratingInput");
+    const ratingForm = document.getElementById("ratingForm");
+    const starsContainer = document.getElementById("starsContainer");
+    const feedbackText = document.getElementById("feedbackText");
+    const loadingOverlay = document.getElementById("loadingOverlay");
+
+    let selectedRating = 0;
+    let submitting = false;
+
+    const ratingMessages = {
+        1: "Rất tiếc vì trải nghiệm chưa tốt",
+        2: "Cửa hàng mong được lắng nghe bạn",
+        3: "Cảm ơn bạn đã góp ý",
+        4: "Cảm ơn bạn rất nhiều!",
+        5: "Tuyệt vời! Cảm ơn bạn 💛"
+    };
+
+    function paintStars(rating, className) {
+        stars.forEach((star, index) => {
+            star.classList.remove("preview", "selected");
+
+            if (index < rating) {
+                star.classList.add(className);
+            }
+        });
+    }
+
+    function updateAccessibility(rating) {
+        stars.forEach((star) => {
+            const currentRating = Number(star.dataset.rating);
+
+            star.setAttribute(
+                "aria-checked",
+                currentRating === rating ? "true" : "false"
+            );
+        });
+    }
+
+    stars.forEach((star) => {
+        star.addEventListener("mouseenter", () => {
+            if (selectedRating > 0) {
+                return;
+            }
+
+            const rating = Number(star.dataset.rating);
+
+            paintStars(rating, "preview");
+            feedbackText.textContent = ratingMessages[rating];
+        });
+
+        star.addEventListener("focus", () => {
+            if (selectedRating > 0) {
+                return;
+            }
+
+            const rating = Number(star.dataset.rating);
+
+            paintStars(rating, "preview");
+            feedbackText.textContent = ratingMessages[rating];
+        });
+
+        star.addEventListener("click", () => {
+            if (submitting) {
+                return;
+            }
+
+            submitting = true;
+            selectedRating = Number(star.dataset.rating);
+
+            ratingInput.value = selectedRating;
+
+            paintStars(selectedRating, "selected");
+            updateAccessibility(selectedRating);
+
+            feedbackText.textContent =
+                ratingMessages[selectedRating];
+
+            loadingOverlay.classList.add("show");
+
+            window.setTimeout(() => {
+                ratingForm.submit();
+            }, 350);
+        });
+    });
+
+    starsContainer.addEventListener("mouseleave", () => {
+        if (selectedRating > 0) {
+            paintStars(selectedRating, "selected");
+            return;
+        }
+
+        paintStars(0, "preview");
+        feedbackText.textContent = "";
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (submitting) {
+            return;
+        }
+
+        const focusedStar = document.activeElement;
+
+        if (!focusedStar.classList.contains("star")) {
+            return;
+        }
+
+        let currentIndex = stars.indexOf(focusedStar);
+
+        if (event.key === "ArrowRight") {
+            event.preventDefault();
+
+            currentIndex = Math.min(
+                currentIndex + 1,
+                stars.length - 1
+            );
+
+            stars[currentIndex].focus();
+        }
+
+        if (event.key === "ArrowLeft") {
+            event.preventDefault();
+
+            currentIndex = Math.max(currentIndex - 1, 0);
+            stars[currentIndex].focus();
+        }
+    });
+</script>
+<script>
+    if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+            navigator.serviceWorker
+                .register("/service-worker.js")
+                .then(function (registration) {
+                    console.log(
+                        "Service Worker đã đăng ký:",
+                        registration.scope
+                    );
+                })
+                .catch(function (error) {
+                    console.error(
+                        "Không thể đăng ký Service Worker:",
+                        error
+                    );
+                });
+        });
+    }
+</script>
+</body>
+</html>
